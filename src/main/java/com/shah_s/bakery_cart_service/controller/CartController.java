@@ -81,6 +81,31 @@ public class CartController {
         return ResponseEntity.ok(cart);
     }
 
+    // Get 'me' cart
+    @GetMapping("/me")
+    public ResponseEntity<CartResponse> getMyCart(
+            @RequestHeader(value = "X-User-Id", required = false) UUID userId,
+            @RequestHeader(value = "X-Session-Id", required = false) String sessionId) {
+
+        logger.info("Get 'me' cart request received");
+
+        CartResponse cartInfo = null;
+        if (userId != null) {
+            Object result = cartService.getOrCreateCartForUser(userId);
+            cartInfo = CartService.convertIfMap(result, objectMapper);
+        } else if (sessionId != null) {
+            cartInfo = cartService.getOrCreateCartForSession(sessionId);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        if (cartInfo == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return ResponseEntity.ok(cartInfo);
+    }
+
     // Get or create cart for user
     @GetMapping("/user/{userId}")
     public ResponseEntity<CartResponse> getOrCreateCartForUser(
@@ -144,6 +169,38 @@ public class CartController {
 
         logger.info("Item added to cart successfully: {}", cartId);
         return ResponseEntity.ok(cart);
+    }
+
+    // Add item to 'me' cart
+    @PostMapping("/me/items")
+    public ResponseEntity<CartResponse> addItemToMyCart(
+            @Valid @RequestBody AddItemRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) UUID userId,
+            @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+
+        logger.info("Add item to 'me' cart request received: product: {}", request.getProductId());
+
+        CartResponse cartInfo = null;
+        
+        if (userId != null) {
+            Object result = cartService.getOrCreateCartForUser(userId);
+            cartInfo = CartService.convertIfMap(result, objectMapper);
+        } else if (sessionId != null) {
+            cartInfo = cartService.getOrCreateCartForSession(sessionId);
+        } else {
+            // Need either userId or sessionId to resolve "me"
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        if (cartInfo == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        CartResponse updatedCart = cartService.addItemToCart(cartInfo.getId(), request);
+
+        logger.info("Item added to 'me' cart successfully: {}", updatedCart.getId());
+        return ResponseEntity.ok(updatedCart);
     }
 
     // Update item in cart
@@ -290,6 +347,36 @@ public class CartController {
         Map<String, Object> result = cartService.checkoutCart(cartId, request);
 
         logger.info("Cart checked out successfully: {}", cartId);
+        return ResponseEntity.ok(result);
+    }
+
+    // Checkout 'me' cart
+    @PostMapping("/me/checkout")
+    public ResponseEntity<Map<String, Object>> checkoutMyCart(
+            @Valid @RequestBody CheckoutRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) UUID userId,
+            @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+
+        logger.info("Checkout 'me' cart request received");
+
+        CartResponse cartInfo = null;
+        if (userId != null) {
+            Object result = cartService.getOrCreateCartForUser(userId);
+            cartInfo = CartService.convertIfMap(result, objectMapper);
+        } else if (sessionId != null) {
+            cartInfo = cartService.getOrCreateCartForSession(sessionId);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        if (cartInfo == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        Map<String, Object> result = cartService.checkoutCart(cartInfo.getId(), request);
+
+        logger.info("Cart checked out successfully: {}", cartInfo.getId());
         return ResponseEntity.ok(result);
     }
 
