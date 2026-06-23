@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@FeignClient(name = "order-service", path = "/api/orders")
+@FeignClient(name = "bakery-order-service", path = "/api/orders")
 public interface OrderServiceClient {
 
     @PostMapping

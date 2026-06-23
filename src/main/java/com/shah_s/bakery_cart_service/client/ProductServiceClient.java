@@ -7,27 +7,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@FeignClient(name = "product-service", path = "/api/products")
+@FeignClient(name = "bakery-product-service", path = "/api")
 public interface ProductServiceClient {
 
-    @GetMapping("/{productId}")
+    @GetMapping("/products/{productId}")
     Map<String, Object> getProductById(@PathVariable UUID productId);
 
-    @GetMapping
-    List<Map<String, Object>> getProductsByIds(@RequestParam List<UUID> productIds);
+    @GetMapping("/products/batch")
+    List<Map<String, Object>> getProductsByIds(@RequestParam("productIds") List<UUID> productIds);
 
-    @GetMapping("/{productId}/stock")
-    Map<String, Object> checkStockAvailability(@PathVariable UUID productId,
-                                              @RequestParam Integer quantity);
+    @GetMapping("/inventory/product/{productId}/availability")
+    Map<String, Object> checkStockAvailability(@PathVariable("productId") UUID productId,
+                                              @RequestParam("quantity") Integer quantity);
 
-    @PostMapping("/{productId}/stock/reserve")
-    Map<String, Object> reserveStock(@PathVariable UUID productId,
+    @PostMapping("/inventory/product/{productId}/reserve")
+    Map<String, Object> reserveStock(@PathVariable("productId") UUID productId,
                                    @RequestBody Map<String, Integer> request);
 
-    @PostMapping("/{productId}/stock/release")
-    Map<String, Object> releaseStock(@PathVariable UUID productId,
+    @PostMapping("/inventory/product/{productId}/release-reserved")
+    Map<String, Object> releaseStock(@PathVariable("productId") UUID productId,
                                    @RequestBody Map<String, Integer> request);
 
-    @PostMapping("/batch/validate")
+    @PostMapping("/products/batch/validate")
     List<Map<String, Object>> validateProducts(@RequestBody List<UUID> productIds);
 }
