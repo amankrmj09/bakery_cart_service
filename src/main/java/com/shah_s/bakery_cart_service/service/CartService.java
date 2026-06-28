@@ -138,7 +138,6 @@ public class CartService {
 
     // Get or create cart for user
     @Cacheable(value = "carts", key = "'user-' + #userId")
-    @Transactional(readOnly = true)
     public CartResponse getOrCreateCartForUser(UUID userId) {
         logger.debug("Getting or creating cart for user: {}", userId);
         Optional<Cart> existingCart = cartRepository.findActiveCartByUserId(userId);
@@ -157,7 +156,6 @@ public class CartService {
 
     // Get or create cart for session
     @Cacheable(value = "carts", key = "'session-' + #sessionId")
-    @Transactional(readOnly = true)
     public CartResponse getOrCreateCartForSession(String sessionId) {
         logger.debug("Getting or creating cart for session: {}", sessionId);
         Optional<Cart> existingCart = cartRepository.findActiveCartBySessionId(sessionId);
@@ -549,7 +547,13 @@ public class CartService {
 
         // Payment information
         orderRequest.put("paymentMethod", request.getPaymentMethod());
-        orderRequest.put("paymentAmount", cart.getTotalAmount());
+        
+        BigDecimal paymentAmount = cart.getTotalAmount();
+        if ("DELIVERY".equals(request.getDeliveryType())) {
+            paymentAmount = paymentAmount.add(new BigDecimal("5.00"));
+        }
+        orderRequest.put("paymentAmount", paymentAmount);
+        
         orderRequest.put("currencyCode", cart.getCurrencyCode());
         orderRequest.put("cardLastFour", request.getCardLastFour());
         orderRequest.put("cardBrand", request.getCardBrand());

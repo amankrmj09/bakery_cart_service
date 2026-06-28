@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cart-items")
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 public class CartItemController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartItemController.class);

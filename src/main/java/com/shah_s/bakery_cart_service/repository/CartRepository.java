@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,21 +19,35 @@ import java.util.UUID;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, UUID> {
 
+    @EntityGraph(attributePaths = {"items"})
+    List<Cart> findAll();
+
+    @EntityGraph(attributePaths = {"items"})
+    Page<Cart> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"items"})
+    Optional<Cart> findById(UUID id);
+
     // Find cart by user ID
+    @EntityGraph(attributePaths = {"items"})
     Optional<Cart> findByUserIdAndStatus(UUID userId, Cart.CartStatus status);
 
     // Find active cart for user
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE c.userId = :userId AND c.status = 'ACTIVE' ORDER BY c.lastActivityAt DESC")
     Optional<Cart> findActiveCartByUserId(@Param("userId") UUID userId);
 
     // Find cart by session ID
+    @EntityGraph(attributePaths = {"items"})
     Optional<Cart> findBySessionIdAndStatus(String sessionId, Cart.CartStatus status);
 
     // Find active cart for guest session
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE c.sessionId = :sessionId AND c.status = 'ACTIVE' ORDER BY c.lastActivityAt DESC")
     Optional<Cart> findActiveCartBySessionId(@Param("sessionId") String sessionId);
 
     // Find cart by user or session
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE " +
            "(:userId IS NOT NULL AND c.userId = :userId) OR " +
            "(:sessionId IS NOT NULL AND c.sessionId = :sessionId) " +
@@ -41,29 +56,37 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
                                                 @Param("sessionId") String sessionId);
 
     // Find carts by status
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findByStatusOrderByUpdatedAtDesc(Cart.CartStatus status);
 
     // Find carts by status with pagination
+    @EntityGraph(attributePaths = {"items"})
     Page<Cart> findByStatus(Cart.CartStatus status, Pageable pageable);
 
     // Find carts by user
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
     // Find carts by user with pagination
+    @EntityGraph(attributePaths = {"items"})
     Page<Cart> findByUserId(UUID userId, Pageable pageable);
 
     // Find guest carts by session
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findBySessionIdOrderByCreatedAtDesc(String sessionId);
 
     // Find expired carts
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE c.expiresAt < :currentTime AND c.status IN ('ACTIVE', 'SAVED') ORDER BY c.expiresAt ASC")
     List<Cart> findExpiredCarts(@Param("currentTime") LocalDateTime currentTime);
 
     // Find abandoned carts (no activity for specified duration)
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE c.status = 'ACTIVE' AND c.lastActivityAt < :cutoffTime ORDER BY c.lastActivityAt ASC")
     List<Cart> findAbandonedCarts(@Param("cutoffTime") LocalDateTime cutoffTime);
 
     // Find carts ready for cleanup
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE " +
            "(c.status = 'EXPIRED' AND c.updatedAt < :cutoffTime) OR " +
            "(c.status = 'CONVERTED' AND c.convertedAt < :cutoffTime) OR " +
@@ -71,29 +94,37 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
     List<Cart> findCartsReadyForCleanup(@Param("cutoffTime") LocalDateTime cutoffTime);
 
     // Find empty carts
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE c.itemCount = 0 AND c.updatedAt < :cutoffTime")
     List<Cart> findEmptyCartsOlderThan(@Param("cutoffTime") LocalDateTime cutoffTime);
 
     // Find carts by date range
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime startDate, LocalDateTime endDate);
 
     // Find carts by date range with pagination
+    @EntityGraph(attributePaths = {"items"})
     Page<Cart> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     // Find carts with specific total amount range
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findByTotalAmountBetweenOrderByUpdatedAtDesc(BigDecimal minAmount, BigDecimal maxAmount);
 
     // Find carts by item count range
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c WHERE c.itemCount BETWEEN :minItems AND :maxItems ORDER BY c.updatedAt DESC")
     List<Cart> findByItemCountRange(@Param("minItems") Integer minItems, @Param("maxItems") Integer maxItems);
 
     // Find carts with discount code
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findByDiscountCodeOrderByUpdatedAtDesc(String discountCode);
 
     // Find carts by delivery type
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findByDeliveryTypeOrderByUpdatedAtDesc(String deliveryType);
 
     // Find carts by source
+    @EntityGraph(attributePaths = {"items"})
     List<Cart> findBySourceOrderByCreatedAtDesc(String source);
 
     // Count carts by status
@@ -184,6 +215,7 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
                                             Pageable pageable);
 
     // Advanced search with multiple filters
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c " +
            "WHERE (:userId IS NULL OR c.userId = :userId) " +
            "AND (:sessionId IS NULL OR c.sessionId = :sessionId) " +
@@ -210,6 +242,7 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
                                    @Param("source") String source);
 
     // Search carts by customer information
+    @EntityGraph(attributePaths = {"items"})
     @Query("SELECT c FROM Cart c " +
            "WHERE LOWER(c.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
            "OR LOWER(c.customerEmail) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +

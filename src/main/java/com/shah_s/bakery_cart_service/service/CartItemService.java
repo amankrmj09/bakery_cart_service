@@ -328,7 +328,18 @@ public class CartItemService {
     }
 
     private String getProductImageUrl(Map<String, Object> productInfo) {
-        return (String) productInfo.get("primaryImageUrl");
+        String primary = (String) productInfo.get("primaryImageUrl");
+        if (primary != null && !primary.isEmpty()) {
+            return primary;
+        }
+        Object mediaUrlsObj = productInfo.get("mediaUrls");
+        if (mediaUrlsObj instanceof java.util.List) {
+            java.util.List<?> mediaUrls = (java.util.List<?>) mediaUrlsObj;
+            if (!mediaUrls.isEmpty()) {
+                return (String) mediaUrls.get(0);
+            }
+        }
+        return null;
     }
 
     private Integer getProductPreparationTime(Map<String, Object> productInfo) {
