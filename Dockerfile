@@ -3,6 +3,10 @@ FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /app
 
 # Cache gradle wrapper and dependencies
+ARG GITHUB_ACTOR
+ARG GITHUB_TOKEN
+ENV GITHUB_ACTOR=$GITHUB_ACTOR
+ENV GITHUB_TOKEN=$GITHUB_TOKEN
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle.kts .
@@ -35,3 +39,4 @@ EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+

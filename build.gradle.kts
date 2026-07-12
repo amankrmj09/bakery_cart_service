@@ -16,8 +16,16 @@ java {
 }
 
 repositories {
-    mavenCentral()
 	mavenLocal()
+	mavenCentral()
+	maven {
+		name = "GitHubPackages"
+		url = uri("https://maven.pkg.github.com/amankrmj09/bakery-common-libs")
+		credentials {
+			username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+			password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+		}
+	}
 }
 
 // extra["snippetsDir"] = file("build/generated-snippets")
@@ -76,3 +84,4 @@ tasks.withType<Test> {
 //     inputs.dir(project.extra["snippetsDir"]!!)
 //     dependsOn(tasks.test)
 // }
+
