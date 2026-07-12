@@ -24,9 +24,14 @@ RUN java -Djarmode=tools -jar build/libs/*.jar extract --layers --launcher --des
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-# Create a non-root user
-RUN addgroup --system spring-user && adduser --system --ingroup spring-user spring-user
+# Create a non-root user with an explicit, writable home directory
+RUN addgroup --system spring-user \
+    && adduser --system --ingroup spring-user --home /home/spring-user spring-user \
+    && mkdir -p /home/spring-user/.config/jgit \
+    && chown -R spring-user:spring-user /home/spring-user
+
 USER spring-user:spring-user
+ENV HOME=/home/spring-user
 
 # Copy extracted layers from builder stage
 COPY --from=builder /app/extracted/dependencies/ ./
