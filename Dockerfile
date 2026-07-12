@@ -1,4 +1,4 @@
-# Stage 1: Build
+﻿# Stage 1: Build
 FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY src src
 RUN ./gradlew clean bootJar -x test --no-daemon
 
 # Extract layers
-RUN java -Djarmode=tools -jar build/libs/*.jar extract --layers --launcher
+RUN java -Djarmode=tools -jar build/libs/*.jar extract --layers --launcher --destination extracted
 
 # Stage 2: Runtime
 FROM eclipse-temurin:25-jre
@@ -29,10 +29,10 @@ RUN addgroup --system spring-user && adduser --system --ingroup spring-user spri
 USER spring-user:spring-user
 
 # Copy extracted layers from builder stage
-COPY --from=builder /app/dependencies/ ./
-COPY --from=builder /app/spring-boot-loader/ ./
-COPY --from=builder /app/snapshot-dependencies/ ./
-COPY --from=builder /app/application/ ./
+COPY --from=builder /app/extracted/dependencies/ ./
+COPY --from=builder /app/extracted/spring-boot-loader/ ./
+COPY --from=builder /app/extracted/snapshot-dependencies/ ./
+COPY --from=builder /app/extracted/application/ ./
 
 # Expose port (adjust if needed)
 EXPOSE 8080
