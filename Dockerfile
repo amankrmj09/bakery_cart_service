@@ -40,7 +40,8 @@ COPY --from=builder /app/extracted/snapshot-dependencies/ ./
 COPY --from=builder /app/extracted/application/ ./
 
 # Expose port (adjust if needed)
-EXPOSE 8085
+EXPOSE 8084
+ENV SERVER_PORT=8084
 
 # Run the application
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

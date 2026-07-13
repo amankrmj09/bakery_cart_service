@@ -1,7 +1,10 @@
+server:
+  port: ${SERVER_PORT:8084}
+
 spring:
   application:
     name: bakery-cart-service
   profiles:
     active: ${ACTIVE_PROFILE:dev}
   config:
-    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8021}"
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8081}"
