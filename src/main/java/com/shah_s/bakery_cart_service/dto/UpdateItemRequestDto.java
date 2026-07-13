@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class UpdateItemRequest {
+public class UpdateItemRequestDto {
 
     // Getters and Setters
     @NotNull(message = "Quantity is required")
@@ -21,9 +21,9 @@ public class UpdateItemRequest {
     private Map<String, Object> metadata;
 
     // Constructors
-    public UpdateItemRequest() {}
+    public UpdateItemRequestDto() {}
 
-    public UpdateItemRequest(Integer quantity) {
+    public UpdateItemRequestDto(Integer quantity) {
         this.quantity = quantity;
     }
 

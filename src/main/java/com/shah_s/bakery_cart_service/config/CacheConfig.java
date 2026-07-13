@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import com.shah_s.bakery_cart_service.dto.CartResponse;
+import com.shah_s.bakery_cart_service.dto.CartResponseDto;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -65,12 +65,12 @@ public class CacheConfig {
     }
 
     @Bean
-    public RedisTemplate<String, CartResponse> cartRedisTemplate(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
-        RedisTemplate<String, CartResponse> template = new RedisTemplate<>();
+    public RedisTemplate<String, CartResponseDto> cartRedisTemplate(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
+        RedisTemplate<String, CartResponseDto> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-        Jackson2JsonRedisSerializer<CartResponse> cartSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, CartResponse.class);
+        Jackson2JsonRedisSerializer<CartResponseDto> cartSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, CartResponseDto.class);
         template.setValueSerializer(cartSerializer);
         template.setHashValueSerializer(cartSerializer);
         template.setDefaultSerializer(cartSerializer);
@@ -93,8 +93,8 @@ public class CacheConfig {
         // Specific cache configurations
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
-        // Cart cache - 30 minutes TTL, use CartResponse serializer
-        Jackson2JsonRedisSerializer<CartResponse> cartSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, CartResponse.class);
+        // Cart cache - 30 minutes TTL, use CartResponseDto serializer
+        Jackson2JsonRedisSerializer<CartResponseDto> cartSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, CartResponseDto.class);
         RedisCacheConfiguration cartCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(30))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CartRequest {
+public class CartRequestDto {
 
     // Getters and Setters
     private UUID userId; // NULL for guest carts
@@ -48,14 +48,14 @@ public class CartRequest {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CartRequest() {}
+    public CartRequestDto() {}
 
-    public CartRequest(UUID userId, String sessionId) {
+    public CartRequestDto(UUID userId, String sessionId) {
         this.userId = userId;
         this.sessionId = sessionId;
     }
 
-    public CartRequest(String sessionId) {
+    public CartRequestDto(String sessionId) {
         this.sessionId = sessionId;
     }
 

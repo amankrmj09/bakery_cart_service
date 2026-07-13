@@ -2,9 +2,12 @@ package com.shah_s.bakery_cart_service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shah_s.bakery_cart_service.client.ProductServiceClient;
-import com.shah_s.bakery_cart_service.dto.AddItemRequest;
-import com.shah_s.bakery_cart_service.dto.CartItemResponse;
-import com.shah_s.bakery_cart_service.dto.UpdateItemRequest;
+import com.shah_s.bakery_cart_service.dto.AddItemRequestDto;
+import com.shah_s.bakery_cart_service.dto.CartItemResponseDto;
+import com.shah_s.bakery_cart_service.dto.UpdateItemRequestDto;
+import org.devofblue.common.dto.ProductDto;
+import org.devofblue.common.dto.StockAvailabilityDto;
+import org.devofblue.common.dto.ProductValidationDto;
 import com.shah_s.bakery_cart_service.entity.Cart;
 import com.shah_s.bakery_cart_service.entity.CartItem;
 import com.shah_s.bakery_cart_service.exception.CartServiceException;
@@ -51,12 +54,12 @@ public class CartItemService {
     }
 
     // Add item to cart
-    public CartItemResponse addItemToCart(Cart cart, AddItemRequest request) {
+    public CartItemResponseDto addItemToCart(Cart cart, AddItemRequestDto request) {
         logger.info("Adding item to cart: {} product: {}", cart.getId(), request.getProductId());
 
         try {
             // Get product information
-            Map<String, Object> productInfo = productServiceClient.getProductById(request.getProductId());
+            ProductDto productInfo = productServiceClient.getProductById(request.getProductId());
             if (productInfo == null) {
                 throw new CartServiceException("Product not found: " + request.getProductId());
             }
@@ -73,7 +76,7 @@ public class CartItemService {
             CartItem savedItem = cartItemRepository.save(cartItem);
             logger.info("Item added to cart successfully: {}", savedItem.getId());
 
-            return CartItemResponse.from(savedItem);
+            return CartItemResponseDto.from(savedItem);
 
         } catch (Exception e) {
             logger.error("Failed to add item to cart: {}", e.getMessage());
@@ -83,7 +86,7 @@ public class CartItemService {
 
     // Update cart item
     @CacheEvict(value = "cart-items", key = "#itemId")
-    public CartItemResponse updateCartItem(UUID itemId, UpdateItemRequest request) {
+    public CartItemResponseDto updateCartItem(UUID itemId, UpdateItemRequestDto request) {
         logger.info("Updating cart item: {} quantity: {}", itemId, request.getQuantity());
 
         try {
@@ -116,7 +119,7 @@ public class CartItemService {
             cart.updateTotals();
 
             logger.info("Cart item updated successfully: {}", itemId);
-            return CartItemResponse.from(updatedItem);
+            return CartItemResponseDto.from(updatedItem);
 
         } catch (Exception e) {
             logger.error("Failed to update cart item {}: {}", itemId, e.getMessage());
@@ -125,8 +128,8 @@ public class CartItemService {
     }
 
     // Update item quantity
-    public CartItemResponse updateItemQuantity(UUID itemId, Integer newQuantity) {
-        UpdateItemRequest request = new UpdateItemRequest(newQuantity);
+    public CartItemResponseDto updateItemQuantity(UUID itemId, Integer newQuantity) {
+        UpdateItemRequestDto request = new UpdateItemRequestDto(newQuantity);
         return updateCartItem(itemId, request);
     }
 
@@ -155,7 +158,7 @@ public class CartItemService {
 
     // Save item for later
     @CacheEvict(value = "cart-items", key = "#itemId")
-    public CartItemResponse saveItemForLater(UUID itemId) {
+    public CartItemResponseDto saveItemForLater(UUID itemId) {
         logger.info("Saving item for later: {}", itemId);
 
         CartItem cartItem = cartItemRepository.findById(itemId)
@@ -167,12 +170,12 @@ public class CartItemService {
         // Update cart totals
         cartItem.getCart().updateTotals();
 
-        return CartItemResponse.from(savedItem);
+        return CartItemResponseDto.from(savedItem);
     }
 
     // Move item to cart
     @CacheEvict(value = "cart-items", key = "#itemId")
-    public CartItemResponse moveItemToCart(UUID itemId) {
+    public CartItemResponseDto moveItemToCart(UUID itemId) {
         logger.info("Moving item to cart: {}", itemId);
 
         CartItem cartItem = cartItemRepository.findById(itemId)
@@ -184,39 +187,39 @@ public class CartItemService {
         // Update cart totals
         cartItem.getCart().updateTotals();
 
-        return CartItemResponse.from(movedItem);
+        return CartItemResponseDto.from(movedItem);
     }
 
     // Get cart items
     @Cacheable(value = "cart-items", key = "#cartId")
     @Transactional(readOnly = true)
-    public List<CartItemResponse> getCartItems(UUID cartId) {
+    public List<CartItemResponseDto> getCartItems(UUID cartId) {
         logger.debug("Fetching items for cart: {}", cartId);
 
         return cartItemRepository.findActiveItemsByCartId(cartId).stream()
-                .map(CartItemResponse::from)
+                .map(CartItemResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     // Get saved items
     @Transactional(readOnly = true)
-    public List<CartItemResponse> getSavedItems(UUID cartId) {
+    public List<CartItemResponseDto> getSavedItems(UUID cartId) {
         logger.debug("Fetching saved items for cart: {}", cartId);
 
         return cartItemRepository.findSavedItemsByCartId(cartId).stream()
-                .map(CartItemResponse::from)
+                .map(CartItemResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     // Get item by ID
     @Transactional(readOnly = true)
-    public CartItemResponse getCartItemById(UUID itemId) {
+    public CartItemResponseDto getCartItemById(UUID itemId) {
         logger.debug("Fetching cart item by ID: {}", itemId);
 
         CartItem cartItem = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new CartServiceException("Cart item not found with ID: " + itemId));
 
-        return CartItemResponse.from(cartItem);
+        return CartItemResponseDto.from(cartItem);
     }
 
     // Validate cart items
@@ -229,12 +232,12 @@ public class CartItemService {
                     .map(CartItem::getProductId)
                     .collect(Collectors.toList());
 
-            List<Map<String, Object>> validations = productServiceClient.validateProducts(productIds);
+            List<ProductValidationDto> validations = productServiceClient.validateProducts(productIds);
 
             // Update items based on validation results
             for (int i = 0; i < items.size() && i < validations.size(); i++) {
                 CartItem item = items.get(i);
-                Map<String, Object> validation = validations.get(i);
+                ProductValidationDto validation = validations.get(i);
 
                 updateItemFromValidation(item, validation);
             }
@@ -245,21 +248,27 @@ public class CartItemService {
     }
 
     // Private helper methods
-    private CartItem createCartItemFromProduct(Cart cart, Map<String, Object> productInfo, AddItemRequest request) {
-        String productName = (String) productInfo.get("name");
+    private CartItem createCartItemFromProduct(Cart cart, ProductDto productInfo, AddItemRequestDto request) {
+        String productName = productInfo.getName();
         BigDecimal unitPrice = request.getUnitPriceOverride() != null ?
                 request.getUnitPriceOverride() :
-                getProductPrice(productInfo);
+                (productInfo.getEffectivePrice() != null ? productInfo.getEffectivePrice() : BigDecimal.ZERO);
 
         CartItem cartItem = new CartItem(cart, request.getProductId(), productName,
                 request.getQuantity(), unitPrice);
 
         // Set additional product information
-        cartItem.setProductSku((String) productInfo.get("sku"));
-        cartItem.setProductCategory(getProductCategory(productInfo));
-        cartItem.setProductDescription((String) productInfo.get("description"));
-        cartItem.setProductImageUrl(getProductImageUrl(productInfo));
-        cartItem.setPreparationTimeMinutes(getProductPreparationTime(productInfo));
+        cartItem.setProductSku(productInfo.getSku());
+        cartItem.setProductCategory(productInfo.getCategory() != null ? productInfo.getCategory().getName() : null);
+        cartItem.setProductDescription(productInfo.getDescription());
+        
+        String imageUrl = productInfo.getPrimaryImageUrl();
+        if (imageUrl == null && productInfo.getMediaUrls() != null && !productInfo.getMediaUrls().isEmpty()) {
+            imageUrl = productInfo.getMediaUrls().get(0);
+        }
+        cartItem.setProductImageUrl(imageUrl);
+        
+        cartItem.setPreparationTimeMinutes(productInfo.getPreparationTimeMinutes() != null ? productInfo.getPreparationTimeMinutes() : 30);
         cartItem.setSpecialInstructions(request.getSpecialInstructions());
         cartItem.setAddedFrom(request.getAddedFrom());
 
@@ -272,10 +281,10 @@ public class CartItemService {
 
     private void validateStock(UUID productId, Integer quantity) {
         try {
-            Map<String, Object> stockInfo = productServiceClient.checkStockAvailability(productId, quantity);
-            Boolean sufficient = (Boolean) stockInfo.get("sufficient");
+            StockAvailabilityDto stockInfo = productServiceClient.checkStockAvailability(productId, quantity);
+            Boolean sufficient = stockInfo.getSufficient();
 
-            if (!sufficient) {
+            if (sufficient == null || !sufficient) {
                 throw new CartServiceException("Insufficient stock for product: " + productId);
             }
         } catch (Exception e) {
@@ -284,18 +293,18 @@ public class CartItemService {
         }
     }
 
-    private void updateItemFromValidation(CartItem item, Map<String, Object> validation) {
+    private void updateItemFromValidation(CartItem item, ProductValidationDto validation) {
         try {
             // Update availability
-            Boolean isAvailable = (Boolean) validation.get("available");
+            Boolean isAvailable = validation.getAvailable();
             item.setIsAvailable(isAvailable != null ? isAvailable : true);
 
             // Update stock quantity
-            Integer stockQuantity = (Integer) validation.get("stockQuantity");
+            Integer stockQuantity = validation.getStockQuantity();
             item.setStockQuantity(stockQuantity);
 
             // Update price if changed
-            BigDecimal currentPrice = getPrice(validation.get("currentPrice"));
+            BigDecimal currentPrice = validation.getCurrentPrice();
             if (currentPrice != null && !currentPrice.equals(item.getUnitPrice())) {
                 item.setUnitPrice(currentPrice);
                 item.checkPriceChange();
@@ -309,43 +318,7 @@ public class CartItemService {
         }
     }
 
-    // Utility methods for product information parsing
-    private BigDecimal getProductPrice(Map<String, Object> productInfo) {
-        Object price = productInfo.get("effectivePrice");
-        return getPrice(price);
-    }
 
-    private BigDecimal getPrice(Object priceObj) {
-        if (priceObj instanceof Number) {
-            return BigDecimal.valueOf(((Number) priceObj).doubleValue());
-        }
-        return BigDecimal.ZERO;
-    }
-
-    private String getProductCategory(Map<String, Object> productInfo) {
-        Map<String, Object> category = (Map<String, Object>) productInfo.get("category");
-        return category != null ? (String) category.get("name") : null;
-    }
-
-    private String getProductImageUrl(Map<String, Object> productInfo) {
-        String primary = (String) productInfo.get("primaryImageUrl");
-        if (primary != null && !primary.isEmpty()) {
-            return primary;
-        }
-        Object mediaUrlsObj = productInfo.get("mediaUrls");
-        if (mediaUrlsObj instanceof java.util.List) {
-            java.util.List<?> mediaUrls = (java.util.List<?>) mediaUrlsObj;
-            if (!mediaUrls.isEmpty()) {
-                return (String) mediaUrls.get(0);
-            }
-        }
-        return null;
-    }
-
-    private Integer getProductPreparationTime(Map<String, Object> productInfo) {
-        Object prepTime = productInfo.get("preparationTimeMinutes");
-        return prepTime instanceof Number ? ((Number) prepTime).intValue() : 30;
-    }
 
     private String convertMetadataToJson(Map<String, Object> metadata) {
         try {

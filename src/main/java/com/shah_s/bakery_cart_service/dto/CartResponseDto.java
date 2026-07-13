@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class CartResponse {
+public class CartResponseDto {
 
     // Getters and Setters
     private UUID id;
@@ -33,8 +33,8 @@ public class CartResponse {
     private String specialInstructions;
     private String deliveryType;
     private String deliveryAddress;
-    private List<CartItemResponse> items;
-    private List<CartItemResponse> savedItems; // Items saved for later
+    private List<CartItemResponseDto> items;
+    private List<CartItemResponseDto> savedItems; // Items saved for later
     private Boolean isEmpty;
     private Boolean isExpired;
     private Boolean isGuest;
@@ -52,11 +52,11 @@ public class CartResponse {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CartResponse() {}
+    public CartResponseDto() {}
 
     // Static factory method
-    public static CartResponse from(Cart cart) {
-        CartResponse response = new CartResponse();
+    public static CartResponseDto from(Cart cart) {
+        CartResponseDto response = new CartResponseDto();
         response.id = cart.getId();
         response.userId = cart.getUserId();
         response.sessionId = cart.getSessionId();
@@ -77,12 +77,12 @@ public class CartResponse {
 
         // Convert items
         response.items = cart.getActiveItems().stream()
-                .map(CartItemResponse::from)
+                .map(CartItemResponseDto::from)
                 .collect(Collectors.toList());
 
         response.savedItems = cart.getItems().stream()
                 .filter(item -> item.getStatus() == com.shah_s.bakery_cart_service.entity.CartItem.CartItemStatus.SAVED_FOR_LATER)
-                .map(CartItemResponse::from)
+                .map(CartItemResponseDto::from)
                 .collect(Collectors.toList());
 
         // Calculate derived fields

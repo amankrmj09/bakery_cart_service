@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class CartUpdateRequest {
+public class CartUpdateRequestDto {
 
     // Getters and Setters
     @Size(max = 100, message = "Customer name must not exceed 100 characters")
@@ -31,6 +31,6 @@ public class CartUpdateRequest {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CartUpdateRequest() {}
+    public CartUpdateRequestDto() {}
 
 }

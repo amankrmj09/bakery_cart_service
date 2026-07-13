@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Setter
 @Getter
-public class CartItemResponse {
+public class CartItemResponseDto {
 
     // Getters and Setters
     private UUID id;
@@ -44,11 +44,11 @@ public class CartItemResponse {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CartItemResponse() {}
+    public CartItemResponseDto() {}
 
     // Static factory method
-    public static CartItemResponse from(CartItem item) {
-        CartItemResponse response = new CartItemResponse();
+    public static CartItemResponseDto from(CartItem item) {
+        CartItemResponseDto response = new CartItemResponseDto();
         response.id = item.getId();
         response.productId = item.getProductId();
         response.productSku = item.getProductSku();

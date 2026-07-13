@@ -1,5 +1,7 @@
 package com.shah_s.bakery_cart_service.client;
 
+import com.shah_s.bakery_cart_service.dto.order.CreateOrderRequestDto;
+import com.shah_s.bakery_cart_service.dto.order.OrderResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +11,7 @@ import java.util.Map;
 public interface OrderServiceClient {
 
     @PostMapping
-    Map<String, Object> createOrder(@RequestBody Map<String, Object> orderRequest,
-                                   @RequestHeader(value = "X-User-Id", required = false) String userId,
-                                   @RequestHeader(value = "X-User-Role", required = false) String userRole);
+    OrderResponseDto createOrder(@RequestBody CreateOrderRequestDto orderRequest,
+                                 @RequestHeader(value = "X-User-Id", required = false) String userId,
+                                 @RequestHeader(value = "X-User-Role", required = false) String userRole);
 }

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class AddItemRequest {
+public class AddItemRequestDto {
 
     // Getters and Setters
     @NotNull(message = "Product ID is required")
@@ -32,9 +32,9 @@ public class AddItemRequest {
     private Map<String, Object> metadata;
 
     // Constructors
-    public AddItemRequest() {}
+    public AddItemRequestDto() {}
 
-    public AddItemRequest(UUID productId, Integer quantity) {
+    public AddItemRequestDto(UUID productId, Integer quantity) {
         this.productId = productId;
         this.quantity = quantity;
     }

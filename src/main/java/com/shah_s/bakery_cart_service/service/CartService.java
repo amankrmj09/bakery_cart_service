@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shah_s.bakery_cart_service.client.OrderServiceClient;
 import com.shah_s.bakery_cart_service.client.ProductServiceClient;
 import com.shah_s.bakery_cart_service.dto.*;
+import com.shah_s.bakery_cart_service.dto.order.CreateOrderRequestDto;
+import com.shah_s.bakery_cart_service.dto.order.OrderResponseDto;
+import org.devofblue.common.dto.ProductValidationDto;
 import com.shah_s.bakery_cart_service.entity.Cart;
 import com.shah_s.bakery_cart_service.entity.CartItem;
 import com.shah_s.bakery_cart_service.exception.CartServiceException;
@@ -62,7 +65,7 @@ public class CartService {
     private Boolean checkPriceOnView;
 
     // Create or get cart
-    public CartResponse createCart(CartRequest request) {
+    public CartResponseDto createCart(CartRequestDto request) {
         logger.info("Creating cart for user: {} session: {}", request.getUserId(), request.getSessionId());
 
         try {
@@ -71,7 +74,7 @@ public class CartService {
             if (existingCart.isPresent()) {
                 Cart cart = existingCart.get();
                 cart.updateActivity();
-                return CartResponse.from(cartRepository.save(cart));
+                return CartResponseDto.from(cartRepository.save(cart));
             }
 
             // Create new cart
@@ -94,7 +97,7 @@ public class CartService {
             Cart savedCart = cartRepository.save(cart);
             logger.info("Cart created successfully: {}", savedCart.getId());
 
-            return CartResponse.from(savedCart);
+            return CartResponseDto.from(savedCart);
 
         } catch (Exception e) {
             logger.error("Failed to create cart: {}", e.getMessage());
@@ -105,19 +108,19 @@ public class CartService {
     // Get cart by ID
     @Cacheable(value = "carts", key = "#cartId")
     @Transactional(readOnly = true)
-    public CartResponse getCartById(UUID cartId) {
+    public CartResponseDto getCartById(UUID cartId) {
         logger.debug("Fetching cart by ID: {}", cartId);
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CartServiceException("Cart not found with ID: " + cartId));
         if (checkPriceOnView) {
             validateCartItems(cart);
         }
-        CartResponse response = CartResponse.from(cart);
+        CartResponseDto response = CartResponseDto.from(cart);
         return convertIfMap(response, objectMapper);
     }
 
-    // Utility to convert LinkedHashMap to CartResponse
-    public static CartResponse convertIfMap(Object obj, ObjectMapper objectMapper) {
+    // Utility to convert LinkedHashMap to CartResponseDto
+    public static CartResponseDto convertIfMap(Object obj, ObjectMapper objectMapper) {
         if (obj instanceof java.util.LinkedHashMap) {
             try {
                 // Remove '@class' field if present
@@ -125,20 +128,20 @@ public class CartService {
                 if (map.containsKey("@class")) {
                     Map<Object, Object> cleaned = new java.util.LinkedHashMap<>(map);
                     cleaned.remove("@class");
-                    return objectMapper.convertValue(cleaned, CartResponse.class);
+                    return objectMapper.convertValue(cleaned, CartResponseDto.class);
                 }
-                return objectMapper.convertValue(obj, CartResponse.class);
+                return objectMapper.convertValue(obj, CartResponseDto.class);
             } catch (Exception e) {
-                LoggerFactory.getLogger(CartService.class).error("Failed to convert cached map to CartResponse", e);
+                LoggerFactory.getLogger(CartService.class).error("Failed to convert cached map to CartResponseDto", e);
                 return null;
             }
         }
-        return (CartResponse) obj;
+        return (CartResponseDto) obj;
     }
 
     // Get or create cart for user
     @Cacheable(value = "carts", key = "'user-' + #userId")
-    public CartResponse getOrCreateCartForUser(UUID userId) {
+    public CartResponseDto getOrCreateCartForUser(UUID userId) {
         logger.debug("Getting or creating cart for user: {}", userId);
         Optional<Cart> existingCart = cartRepository.findActiveCartByUserId(userId);
         if (existingCart.isPresent()) {
@@ -146,17 +149,17 @@ public class CartService {
             if (checkPriceOnView) {
                 validateCartItems(cart);
             }
-            CartResponse response = CartResponse.from(cart);
+            CartResponseDto response = CartResponseDto.from(cart);
             return convertIfMap(response, objectMapper);
         }
-        CartRequest request = new CartRequest(userId, null);
-        CartResponse response = createCart(request);
+        CartRequestDto request = new CartRequestDto(userId, null);
+        CartResponseDto response = createCart(request);
         return convertIfMap(response, objectMapper);
     }
 
     // Get or create cart for session
     @Cacheable(value = "carts", key = "'session-' + #sessionId")
-    public CartResponse getOrCreateCartForSession(String sessionId) {
+    public CartResponseDto getOrCreateCartForSession(String sessionId) {
         logger.debug("Getting or creating cart for session: {}", sessionId);
         Optional<Cart> existingCart = cartRepository.findActiveCartBySessionId(sessionId);
         if (existingCart.isPresent()) {
@@ -164,17 +167,17 @@ public class CartService {
             if (checkPriceOnView) {
                 validateCartItems(cart);
             }
-            CartResponse response = CartResponse.from(cart);
+            CartResponseDto response = CartResponseDto.from(cart);
             return convertIfMap(response, objectMapper);
         }
-        CartRequest request = new CartRequest(sessionId);
-        CartResponse response = createCart(request);
+        CartRequestDto request = new CartRequestDto(sessionId);
+        CartResponseDto response = createCart(request);
         return convertIfMap(response, objectMapper);
     }
 
     // Add item to cart
     @CacheEvict(value = "carts", allEntries = true)
-    public CartResponse addItemToCart(UUID cartId, AddItemRequest request) {
+    public CartResponseDto addItemToCart(UUID cartId, AddItemRequestDto request) {
         logger.info("Adding item to cart: {} product: {} quantity: {}",
                 cartId, request.getProductId(), request.getQuantity());
 
@@ -205,7 +208,7 @@ public class CartService {
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
             logger.info("Item added to cart successfully: {}", cartId);
-            return CartResponse.from(updatedCart);
+            return CartResponseDto.from(updatedCart);
 
         } catch (Exception e) {
             logger.error("Failed to add item to cart {}: {}", cartId, e.getMessage());
@@ -215,7 +218,7 @@ public class CartService {
 
     // Update item in cart
     @CacheEvict(value = "carts", allEntries = true)
-    public CartResponse updateCartItem(UUID cartId, UUID itemId, UpdateItemRequest request) {
+    public CartResponseDto updateCartItem(UUID cartId, UUID itemId, UpdateItemRequestDto request) {
         logger.info("Updating cart item: {} in cart: {}", itemId, cartId);
 
         try {
@@ -225,7 +228,7 @@ public class CartService {
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
             logger.info("Cart item updated successfully: {}", itemId);
-            return CartResponse.from(updatedCart);
+            return CartResponseDto.from(updatedCart);
 
         } catch (Exception e) {
             logger.error("Failed to update cart item {}: {}", itemId, e.getMessage());
@@ -235,7 +238,7 @@ public class CartService {
 
     // Remove item from cart
     @CacheEvict(value = "carts", allEntries = true)
-    public CartResponse removeItemFromCart(UUID cartId, UUID itemId) {
+    public CartResponseDto removeItemFromCart(UUID cartId, UUID itemId) {
         logger.info("Removing item from cart: {} item: {}", cartId, itemId);
 
         try {
@@ -245,7 +248,7 @@ public class CartService {
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
             logger.info("Item removed from cart successfully: {}", itemId);
-            return CartResponse.from(updatedCart);
+            return CartResponseDto.from(updatedCart);
 
         } catch (Exception e) {
             logger.error("Failed to remove item from cart {}: {}", cartId, e.getMessage());
@@ -255,7 +258,7 @@ public class CartService {
 
     // Clear cart
     @CacheEvict(value = "carts", allEntries = true)
-    public CartResponse clearCart(UUID cartId) {
+    public CartResponseDto clearCart(UUID cartId) {
         logger.info("Clearing cart: {}", cartId);
 
         try {
@@ -266,7 +269,7 @@ public class CartService {
             Cart clearedCart = cartRepository.save(cart);
 
             logger.info("Cart cleared successfully: {}", cartId);
-            return CartResponse.from(clearedCart);
+            return CartResponseDto.from(clearedCart);
 
         } catch (Exception e) {
             logger.error("Failed to clear cart {}: {}", cartId, e.getMessage());
@@ -276,7 +279,7 @@ public class CartService {
 
     // Update cart details
     @CacheEvict(value = "carts", allEntries = true)
-    public CartResponse updateCart(UUID cartId, CartUpdateRequest request) {
+    public CartResponseDto updateCart(UUID cartId, CartUpdateRequestDto request) {
         logger.info("Updating cart: {}", cartId);
 
         try {
@@ -311,7 +314,7 @@ public class CartService {
             Cart updatedCart = cartRepository.save(cart);
 
             logger.info("Cart updated successfully: {}", cartId);
-            return CartResponse.from(updatedCart);
+            return CartResponseDto.from(updatedCart);
 
         } catch (Exception e) {
             logger.error("Failed to update cart {}: {}", cartId, e.getMessage());
@@ -321,7 +324,7 @@ public class CartService {
 
     // Merge carts (for user login)
     @CacheEvict(value = "carts", allEntries = true)
-    public CartResponse mergeCarts(MergeCartsRequest request) {
+    public CartResponseDto mergeCarts(MergeCartsRequestDto request) {
         logger.info("Merging carts: {} -> {}", request.getSourceCartId(), request.getTargetCartId());
 
         try {
@@ -370,7 +373,7 @@ public class CartService {
             }
 
             logger.info("Carts merged successfully: {}", request.getTargetCartId());
-            return CartResponse.from(mergedCart);
+            return CartResponseDto.from(mergedCart);
 
         } catch (Exception e) {
             logger.error("Failed to merge carts: {}", e.getMessage());
@@ -380,7 +383,7 @@ public class CartService {
 
     // Save cart for later
     @CacheEvict(value = "carts", key = "#cartId")
-    public CartResponse saveCartForLater(UUID cartId) {
+    public CartResponseDto saveCartForLater(UUID cartId) {
         logger.info("Saving cart for later: {}", cartId);
 
         Cart cart = cartRepository.findById(cartId)
@@ -389,12 +392,12 @@ public class CartService {
         cart.markAsSaved();
         Cart savedCart = cartRepository.save(cart);
 
-        return CartResponse.from(savedCart);
+        return CartResponseDto.from(savedCart);
     }
 
     // Checkout cart
     @CacheEvict(value = "carts", allEntries = true)
-    public Map<String, Object> checkoutCart(UUID cartId, CheckoutRequest request) {
+    public Map<String, Object> checkoutCart(UUID cartId, CheckoutRequestDto request) {
         logger.info("Checking out cart: {}", cartId);
 
         try {
@@ -409,20 +412,20 @@ public class CartService {
             validateCartItems(cart);
 
             // Create order request
-            Map<String, Object> orderRequest = createOrderRequest(cart, request);
+            CreateOrderRequestDto orderRequest = createOrderRequest(cart, request);
 
             // Call Order Service
-            Map<String, Object> orderResponse = orderServiceClient.createOrder(orderRequest,
+            OrderResponseDto orderResponse = orderServiceClient.createOrder(orderRequest,
                     cart.getUserId() != null ? cart.getUserId().toString() : null, "USER");
 
             // Mark cart as converted
-            cart.markAsConverted(UUID.fromString((String) orderResponse.get("id")));
+            cart.markAsConverted(orderResponse.getId());
             cartRepository.save(cart);
 
-            logger.info("Cart checked out successfully: {} -> Order: {}", cartId, orderResponse.get("id"));
+            logger.info("Cart checked out successfully: {} -> Order: {}", cartId, orderResponse.getId());
 
             Map<String, Object> response = new HashMap<>();
-            response.put("cart", CartResponse.from(cart));
+            response.put("cart", CartResponseDto.from(cart));
             response.put("order", orderResponse);
 
             return response;
@@ -435,31 +438,31 @@ public class CartService {
 
     // Get user carts
     @Transactional(readOnly = true)
-    public List<CartResponse> getUserCarts(UUID userId) {
+    public List<CartResponseDto> getUserCarts(UUID userId) {
         logger.debug("Fetching carts for user: {}", userId);
 
         return cartRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(CartResponse::from)
+                .map(CartResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     // Get carts by status
     @Transactional(readOnly = true)
-    public List<CartResponse> getCartsByStatus(Cart.CartStatus status) {
+    public List<CartResponseDto> getCartsByStatus(Cart.CartStatus status) {
         logger.debug("Fetching carts by status: {}", status);
 
         return cartRepository.findByStatusOrderByUpdatedAtDesc(status).stream()
-                .map(CartResponse::from)
+                .map(CartResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     // Get all carts with pagination
     @Transactional(readOnly = true)
-    public Page<CartResponse> getAllCarts(Pageable pageable) {
+    public Page<CartResponseDto> getAllCarts(Pageable pageable) {
         logger.debug("Fetching all carts with pagination");
 
         return cartRepository.findAll(pageable)
-                .map(CartResponse::from);
+                .map(CartResponseDto::from);
     }
 
     // Get cart statistics
@@ -525,7 +528,7 @@ public class CartService {
 
             if (productIds.isEmpty()) return;
 
-            List<Map<String, Object>> productValidations = productServiceClient.validateProducts(productIds);
+            List<ProductValidationDto> productValidations = productServiceClient.validateProducts(productIds);
             // TODO: Update cart items based on validation results
 
         } catch (Exception e) {
@@ -533,50 +536,50 @@ public class CartService {
         }
     }
 
-    private Map<String, Object> createOrderRequest(Cart cart, CheckoutRequest request) {
-        Map<String, Object> orderRequest = new HashMap<>();
-        orderRequest.put("userId", cart.getUserId());
-        orderRequest.put("customerName", request.getCustomerName());
-        orderRequest.put("customerEmail", request.getCustomerEmail());
-        orderRequest.put("customerPhone", request.getCustomerPhone());
-        orderRequest.put("deliveryType", request.getDeliveryType());
-        orderRequest.put("deliveryAddress", request.getDeliveryAddress());
-        orderRequest.put("deliveryDate", request.getDeliveryDate());
-        orderRequest.put("specialInstructions", request.getSpecialInstructions());
-        orderRequest.put("discountCode", request.getDiscountCode());
+    private CreateOrderRequestDto createOrderRequest(Cart cart, CheckoutRequestDto request) {
+        CreateOrderRequestDto orderRequest = new CreateOrderRequestDto();
+        orderRequest.setUserId(cart.getUserId());
+        orderRequest.setCustomerName(request.getCustomerName());
+        orderRequest.setCustomerEmail(request.getCustomerEmail());
+        orderRequest.setCustomerPhone(request.getCustomerPhone());
+        orderRequest.setDeliveryType(request.getDeliveryType());
+        orderRequest.setDeliveryAddress(request.getDeliveryAddress());
+        orderRequest.setDeliveryDate(request.getDeliveryDate());
+        orderRequest.setSpecialInstructions(request.getSpecialInstructions());
+        orderRequest.setDiscountCode(request.getDiscountCode());
 
         // Payment information
-        orderRequest.put("paymentMethod", request.getPaymentMethod());
+        orderRequest.setPaymentMethod(request.getPaymentMethod());
         
         BigDecimal paymentAmount = cart.getTotalAmount();
         if ("DELIVERY".equals(request.getDeliveryType())) {
             paymentAmount = paymentAmount.add(new BigDecimal("5.00"));
         }
-        orderRequest.put("paymentAmount", paymentAmount);
+        orderRequest.setPaymentAmount(paymentAmount);
         
-        orderRequest.put("currencyCode", cart.getCurrencyCode());
-        orderRequest.put("cardLastFour", request.getCardLastFour());
-        orderRequest.put("cardBrand", request.getCardBrand());
-        orderRequest.put("cardType", request.getCardType());
-        orderRequest.put("digitalWalletProvider", request.getDigitalWalletProvider());
-        orderRequest.put("bankName", request.getBankName());
-        orderRequest.put("paymentNotes", request.getPaymentNotes());
+        orderRequest.setCurrencyCode(cart.getCurrencyCode());
+        orderRequest.setCardLastFour(request.getCardLastFour());
+        orderRequest.setCardBrand(request.getCardBrand());
+        orderRequest.setCardType(request.getCardType());
+        orderRequest.setDigitalWalletProvider(request.getDigitalWalletProvider());
+        orderRequest.setBankName(request.getBankName());
+        orderRequest.setPaymentNotes(request.getPaymentNotes());
 
         // Order items
-        List<Map<String, Object>> items = cart.getActiveItems().stream()
+        List<CreateOrderRequestDto.OrderItemDto> items = cart.getActiveItems().stream()
                 .map(this::convertCartItemToOrderItem)
                 .collect(Collectors.toList());
-        orderRequest.put("items", items);
+        orderRequest.setItems(items);
 
         return orderRequest;
     }
 
-    private Map<String, Object> convertCartItemToOrderItem(CartItem cartItem) {
-        Map<String, Object> orderItem = new HashMap<>();
-        orderItem.put("productId", cartItem.getProductId());
-        orderItem.put("quantity", cartItem.getQuantity());
-        orderItem.put("unitPriceOverride", cartItem.getUnitPrice());
-        orderItem.put("specialInstructions", cartItem.getSpecialInstructions());
+    private CreateOrderRequestDto.OrderItemDto convertCartItemToOrderItem(CartItem cartItem) {
+        CreateOrderRequestDto.OrderItemDto orderItem = new CreateOrderRequestDto.OrderItemDto();
+        orderItem.setProductId(cartItem.getProductId());
+        orderItem.setQuantity(cartItem.getQuantity());
+        orderItem.setUnitPriceOverride(cartItem.getUnitPrice());
+        orderItem.setSpecialInstructions(cartItem.getSpecialInstructions());
         return orderItem;
     }
 

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class MergeCartsRequest {
+public class MergeCartsRequestDto {
 
     // Getters and Setters
     @NotNull(message = "Source cart ID is required")
@@ -22,9 +22,9 @@ public class MergeCartsRequest {
     private Boolean handleDuplicates = true; // Merge quantities for duplicate products
 
     // Constructors
-    public MergeCartsRequest() {}
+    public MergeCartsRequestDto() {}
 
-    public MergeCartsRequest(UUID sourceCartId, UUID targetCartId) {
+    public MergeCartsRequestDto(UUID sourceCartId, UUID targetCartId) {
         this.sourceCartId = sourceCartId;
         this.targetCartId = targetCartId;
     }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class CheckoutRequest {
+public class CheckoutRequestDto {
 
     // Getters and Setters
     @NotBlank(message = "Customer name is required")
@@ -64,6 +64,6 @@ public class CheckoutRequest {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CheckoutRequest() {}
+    public CheckoutRequestDto() {}
 
 }
