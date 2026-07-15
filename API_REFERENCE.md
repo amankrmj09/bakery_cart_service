@@ -2,9 +2,426 @@
 
 This document provides a comprehensive reference of all endpoints exposed by the Bakery Cart Service.
 
+---
+
+## Cart Controller
+**Base Path:** `/api/carts`
+
+### 1. Create a new cart
+- **Method:** `POST`
+- **Path:** `/api/carts`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "userId": "UUID",
+    "sessionId": "String",
+    "customerName": "String",
+    "customerEmail": "String",
+    "currencyCode": "String (default USD)",
+    "discountCode": "String",
+    "specialInstructions": "String",
+    "deliveryType": "String",
+    "deliveryAddress": "String",
+    "source": "String",
+    "deviceType": "String",
+    "userAgent": "String",
+    "metadata": {}
+  }
+  ```
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 2. Get cart by ID
+- **Method:** `GET`
+- **Path:** `/api/carts/{cartId}`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 3. Get 'me' cart
+- **Method:** `GET`
+- **Path:** `/api/carts/me`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 4. Get or create cart for user
+- **Method:** `GET`
+- **Path:** `/api/carts/user/{userId}`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 5. Get or create cart for session
+- **Method:** `GET`
+- **Path:** `/api/carts/session/{sessionId}`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 6. Add item to cart
+- **Method:** `POST`
+- **Path:** `/api/carts/{cartId}/items`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "productId": "UUID (required)",
+    "quantity": "Integer (required, min 1, max 50)",
+    "unitPriceOverride": "BigDecimal",
+    "specialInstructions": "String",
+    "addedFrom": "String",
+    "metadata": {}
+  }
+  ```
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 7. Add item to 'me' cart
+- **Method:** `POST`
+- **Path:** `/api/carts/me/items`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "productId": "UUID (required)",
+    "quantity": "Integer (required, min 1, max 50)",
+    "unitPriceOverride": "BigDecimal",
+    "specialInstructions": "String",
+    "addedFrom": "String",
+    "metadata": {}
+  }
+  ```
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 8. Update item in cart
+- **Method:** `PUT`
+- **Path:** `/api/carts/{cartId}/items/{itemId}`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "quantity": "Integer (required, min 1, max 50)",
+    "specialInstructions": "String",
+    "metadata": {}
+  }
+  ```
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 9. Remove item from cart
+- **Method:** `DELETE`
+- **Path:** `/api/carts/{cartId}/items/{itemId}`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 10. Clear cart
+- **Method:** `DELETE`
+- **Path:** `/api/carts/{cartId}/items`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 11. Update cart details
+- **Method:** `PATCH`
+- **Path:** `/api/carts/{cartId}`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "customerName": "String",
+    "customerEmail": "String",
+    "discountCode": "String",
+    "specialInstructions": "String",
+    "deliveryType": "String",
+    "deliveryAddress": "String",
+    "metadata": {}
+  }
+  ```
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 12. Merge two carts
+- **Method:** `POST`
+- **Path:** `/api/carts/merge`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "sourceCartId": "UUID (required)",
+    "targetCartId": "UUID (required)",
+    "deleteSourceCart": "Boolean (default true)",
+    "handleDuplicates": "Boolean (default true)"
+  }
+  ```
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 13. Save cart for later
+- **Method:** `POST`
+- **Path:** `/api/carts/{cartId}/save`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartResponseDto`
+
+### 14. Checkout cart
+- **Method:** `POST`
+- **Path:** `/api/carts/{cartId}/checkout`
+- **Type of API:** `User`
+- **Request Body:**
+  ```json
+  {
+    "customerName": "String (required)",
+    "customerEmail": "String (required)",
+    "customerPhone": "String",
+    "deliveryType": "String (required)",
+    "deliveryAddress": "String",
+    "deliveryDate": "LocalDateTime",
+    "specialInstructions": "String",
+    "discountCode": "String",
+    "paymentMethod": "String (required)",
+    "cardLastFour": "String",
+    "cardBrand": "String",
+    "cardType": "String",
+    "digitalWalletProvider": "String",
+    "bankName": "String",
+    "paymentNotes": "String",
+    "metadata": {}
+  }
+  ```
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "orderId": "UUID",
+    "status": "String",
+    "message": "String"
+  }
+  ```
+
+### 15. Checkout 'me' cart
+- **Method:** `POST`
+- **Path:** `/api/carts/me/checkout`
+- **Type of API:** `User`
+- **Request Body:**
+  *(Same as Checkout cart)*
+- **Response Body:** `200 OK`
+  `Map<String, Object>`
+
+### 16. Get all carts for a user
+- **Method:** `GET`
+- **Path:** `/api/carts/user/{userId}/all`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  [
+    { /* CartResponseDto */ }
+  ]
+  ```
+
+### 17. Get carts by status
+- **Method:** `GET`
+- **Path:** `/api/carts/status/{status}`
+- **Type of API:** `Admin`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `List<CartResponseDto>`
+
+### 18. Get all carts (Paginated)
+- **Method:** `GET`
+- **Path:** `/api/carts`
+- **Type of API:** `Admin`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "content": [
+      { /* CartResponseDto */ }
+    ],
+    "pageable": {
+      "pageNumber": 0,
+      "pageSize": 20
+    },
+    "totalElements": 0,
+    "totalPages": 0,
+    "last": true
+  }
+  ```
+
+### 19. Get cart statistics
+- **Method:** `GET`
+- **Path:** `/api/carts/statistics`
+- **Type of API:** `Admin`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "totalCarts": "Integer",
+    "activeCarts": "Integer",
+    "abandonedCarts": "Integer",
+    "conversionRate": "Double"
+  }
+  ```
+
+### 20. Health Check for Cart Controller
+- **Method:** `GET`
+- **Path:** `/api/carts/health`
+- **Type of API:** `Public`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "status": "UP",
+    "service": "cart-service-carts",
+    "timestamp": "LocalDateTime"
+  }
+  ```
+
+---
+
+## CartItem Controller
+**Base Path:** `/api/cart-items`
+
+### 1. Get cart item by ID
+- **Method:** `GET`
+- **Path:** `/api/cart-items/{itemId}`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartItemResponseDto`
+
+### 2. Get all items for a cart
+- **Method:** `GET`
+- **Path:** `/api/cart-items/cart/{cartId}`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `List<CartItemResponseDto>`
+
+### 3. Get saved items for a cart
+- **Method:** `GET`
+- **Path:** `/api/cart-items/cart/{cartId}/saved`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `List<CartItemResponseDto>`
+
+### 4. Save item for later
+- **Method:** `POST`
+- **Path:** `/api/cart-items/{itemId}/save-for-later`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartItemResponseDto`
+
+### 5. Move saved item back to cart
+- **Method:** `POST`
+- **Path:** `/api/cart-items/{itemId}/move-to-cart`
+- **Type of API:** `User`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  `CartItemResponseDto`
+
+### 6. Health Check for CartItem Controller
+- **Method:** `GET`
+- **Path:** `/api/cart-items/health`
+- **Type of API:** `Public`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "status": "UP",
+    "service": "cart-service-items",
+    "timestamp": "LocalDateTime"
+  }
+  ```
+
+---
+
+## Health Controller
+**Base Path:** `/api`
+
+### 1. Main service health check
+- **Method:** `GET`
+- **Path:** `/api/health`
+- **Type of API:** `Public`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "status": "UP",
+    "service": "bakery-cart-service",
+    "timestamp": "LocalDateTime",
+    "version": "1.0.0",
+    "database": "UP",
+    "databaseUrl": "String",
+    "redis": "UP"
+  }
+  ```
+
+### 2. Service info details
+- **Method:** `GET`
+- **Path:** `/api/info`
+- **Type of API:** `Public`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "serviceName": "Bakery Cart Service",
+    "description": "Shopping cart management and session handling service",
+    "version": "1.0.0",
+    "features": {
+      "carts": "User and guest cart management",
+      "persistence": "Redis caching with PostgreSQL persistence",
+      "validation": "Real-time stock and price validation",
+      "checkout": "Seamless order creation integration",
+      "analytics": "Cart abandonment and conversion tracking"
+    },
+    "endpoints": {
+      "carts": "/api/carts",
+      "items": "/api/cart-items"
+    }
+  }
+  ```
+
+### 3. Service metrics
+- **Method:** `GET`
+- **Path:** `/api/metrics`
+- **Type of API:** `Public`
+- **Request Body:** None
+- **Response Body:** `200 OK`
+  ```json
+  {
+    "uptime": "String (e.g., '0 days, 2 hours, 15 minutes, 30 seconds')",
+    "timestamp": "LocalDateTime",
+    "memory": {
+      "maxMemory": "String (MB)",
+      "totalMemory": "String (MB)",
+      "freeMemory": "String (MB)",
+      "usedMemory": "String (MB)"
+    },
+    "cache": {
+      "redisConnections": "active",
+      "cacheHitRate": "N/A"
+    }
+  }
+  ```
+
+---
+
 ## Common DTOs
 
-### CartResponseDto (Response)
+### CartResponseDto
 ```json
 {
   "id": "UUID",
@@ -25,41 +442,10 @@ This document provides a comprehensive reference of all endpoints exposed by the
   "deliveryType": "String",
   "deliveryAddress": "String",
   "items": [
-    {
-      "id": "UUID",
-      "productId": "UUID",
-      "productSku": "String",
-      "productName": "String",
-      "productCategory": "String",
-      "quantity": "Integer",
-      "unitPrice": "BigDecimal",
-      "totalPrice": "BigDecimal",
-      "originalUnitPrice": "BigDecimal",
-      "status": "String",
-      "specialInstructions": "String",
-      "productDescription": "String",
-      "productImageUrl": "String",
-      "preparationTimeMinutes": "Integer",
-      "currencyCode": "String",
-      "isAvailable": "Boolean",
-      "stockQuantity": "Integer",
-      "availabilityMessage": "String",
-      "priceChanged": "Boolean",
-      "priceChangeAmount": "BigDecimal",
-      "hasStockIssue": "Boolean",
-      "addedAt": "LocalDateTime",
-      "updatedAt": "LocalDateTime",
-      "lastValidatedAt": "LocalDateTime",
-      "savedForLaterAt": "LocalDateTime",
-      "removedAt": "LocalDateTime",
-      "addedFrom": "String",
-      "metadata": {
-        "raw": {}
-      }
-    }
+    { /* CartItemResponseDto */ }
   ],
   "savedItems": [
-    /* Same structure as items above */
+    { /* CartItemResponseDto */ }
   ],
   "isEmpty": "Boolean",
   "isExpired": "Boolean",
@@ -81,7 +467,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 }
 ```
 
-### CartItemResponseDto (Response)
+### CartItemResponseDto
 ```json
 {
   "id": "UUID",
@@ -113,444 +499,6 @@ This document provides a comprehensive reference of all endpoints exposed by the
   "addedFrom": "String",
   "metadata": {
     "raw": {}
-  }
-}
-```
-
----
-
-## CartController (`/api/carts`)
-
-### `POST /api/carts`
-**Description:** Create a new cart.  
-**Request Headers:** `X-User-Id`, `X-Session-Id`, `X-User-Role`
-
-**Request Body (CartRequestDto):**
-```json
-{
-  "userId": "UUID",
-  "sessionId": "String",
-  "customerName": "String",
-  "customerEmail": "String",
-  "currencyCode": "String (default USD)",
-  "discountCode": "String",
-  "specialInstructions": "String",
-  "deliveryType": "String",
-  "deliveryAddress": "String",
-  "source": "String",
-  "deviceType": "String",
-  "userAgent": "String",
-  "metadata": {}
-}
-```
-
-**Response:** `CartResponseDto`
-
----
-
-### `GET /api/carts/{cartId}`
-**Description:** Get cart by ID.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartResponseDto`
-
----
-
-### `GET /api/carts/me`
-**Description:** Get 'me' cart based on user ID or session ID from headers.  
-**Request Headers:** `X-User-Id`, `X-Session-Id`
-
-**Response:** `CartResponseDto`
-
----
-
-### `GET /api/carts/user/{userId}`
-**Description:** Get or create cart for user.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartResponseDto`
-
----
-
-### `GET /api/carts/session/{sessionId}`
-**Description:** Get or create cart for session.  
-**Request Headers:** `X-Session-Id`
-
-**Response:** `CartResponseDto`
-
----
-
-### `POST /api/carts/{cartId}/items`
-**Description:** Add item to cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Request Body (AddItemRequestDto):**
-```json
-{
-  "productId": "UUID (required)",
-  "quantity": "Integer (required, min 1, max 50)",
-  "unitPriceOverride": "BigDecimal",
-  "specialInstructions": "String",
-  "addedFrom": "String",
-  "metadata": {}
-}
-```
-
-**Response:** `CartResponseDto`
-
----
-
-### `POST /api/carts/me/items`
-**Description:** Add item to 'me' cart.  
-**Request Headers:** `X-User-Id`, `X-Session-Id`, `X-User-Role`
-
-**Request Body (AddItemRequestDto):**
-```json
-{
-  "productId": "UUID (required)",
-  "quantity": "Integer (required, min 1, max 50)",
-  "unitPriceOverride": "BigDecimal",
-  "specialInstructions": "String",
-  "addedFrom": "String",
-  "metadata": {}
-}
-```
-
-**Response:** `CartResponseDto`
-
----
-
-### `PUT /api/carts/{cartId}/items/{itemId}`
-**Description:** Update item in cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Request Body (UpdateItemRequestDto):**
-```json
-{
-  "quantity": "Integer (required, min 1, max 50)",
-  "specialInstructions": "String",
-  "metadata": {}
-}
-```
-
-**Response:** `CartResponseDto`
-
----
-
-### `DELETE /api/carts/{cartId}/items/{itemId}`
-**Description:** Remove item from cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartResponseDto`
-
----
-
-### `DELETE /api/carts/{cartId}/items`
-**Description:** Clear cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartResponseDto`
-
----
-
-### `PATCH /api/carts/{cartId}`
-**Description:** Update cart details.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Request Body (CartUpdateRequestDto):**
-```json
-{
-  "customerName": "String",
-  "customerEmail": "String",
-  "discountCode": "String",
-  "specialInstructions": "String",
-  "deliveryType": "String",
-  "deliveryAddress": "String",
-  "metadata": {}
-}
-```
-
-**Response:** `CartResponseDto`
-
----
-
-### `POST /api/carts/merge`
-**Description:** Merge two carts.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Request Body (MergeCartsRequestDto):**
-```json
-{
-  "sourceCartId": "UUID (required)",
-  "targetCartId": "UUID (required)",
-  "deleteSourceCart": "Boolean (default true)",
-  "handleDuplicates": "Boolean (default true)"
-}
-```
-
-**Response:** `CartResponseDto`
-
----
-
-### `POST /api/carts/{cartId}/save`
-**Description:** Save cart for later.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartResponseDto`
-
----
-
-### `POST /api/carts/{cartId}/checkout`
-**Description:** Checkout cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Request Body (CheckoutRequestDto):**
-```json
-{
-  "customerName": "String (required)",
-  "customerEmail": "String (required)",
-  "customerPhone": "String",
-  "deliveryType": "String (required)",
-  "deliveryAddress": "String",
-  "deliveryDate": "LocalDateTime",
-  "specialInstructions": "String",
-  "discountCode": "String",
-  "paymentMethod": "String (required)",
-  "cardLastFour": "String",
-  "cardBrand": "String",
-  "cardType": "String",
-  "digitalWalletProvider": "String",
-  "bankName": "String",
-  "paymentNotes": "String",
-  "metadata": {}
-}
-```
-
-**Response:**
-```json
-{
-  "orderId": "UUID",
-  "status": "String",
-  "message": "String"
-}
-```
-
----
-
-### `POST /api/carts/me/checkout`
-**Description:** Checkout 'me' cart.  
-**Request Headers:** `X-User-Id`, `X-Session-Id`, `X-User-Role`
-
-**Request Body (CheckoutRequestDto):** *(Same as above)*
-
-**Response:** `Map<String, Object>`
-
----
-
-### `GET /api/carts/user/{userId}/all`
-**Description:** Get all carts for a user.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** List of `CartResponseDto`
-```json
-[
-  { /* CartResponseDto */ }
-]
-```
-
----
-
-### `GET /api/carts/status/{status}`
-**Description:** Get carts by status (Admin only).  
-**Request Headers:** `X-User-Role` (must be ADMIN)
-
-**Response:** List of `CartResponseDto`
-
----
-
-### `GET /api/carts`
-**Description:** Get all carts with pagination (Admin only).  
-**Request Headers:** `X-User-Role` (must be ADMIN)  
-**Query Parameters:** 
-- `page` (int, default 0)
-- `size` (int, default 20)
-- `sortBy` (String, default "updatedAt")
-- `sortDir` (String, default "DESC")
-
-**Response:** Page of `CartResponseDto`
-```json
-{
-  "content": [
-    { /* CartResponseDto */ }
-  ],
-  "pageable": {
-    "pageNumber": 0,
-    "pageSize": 20
-  },
-  "totalElements": 0,
-  "totalPages": 0,
-  "last": true
-}
-```
-
----
-
-### `GET /api/carts/statistics`
-**Description:** Get cart statistics (Admin only).  
-**Request Headers:** `X-User-Role` (must be ADMIN)  
-**Query Parameters:**
-- `startDate` (DateTime, optional)
-- `endDate` (DateTime, optional)
-
-**Response:**
-```json
-{
-  "totalCarts": "Integer",
-  "activeCarts": "Integer",
-  "abandonedCarts": "Integer",
-  "conversionRate": "Double"
-}
-```
-
----
-
-### `GET /api/carts/health`
-**Description:** Health check for Cart Controller.
-
-**Response:**
-```json
-{
-  "status": "UP",
-  "service": "cart-service-carts",
-  "timestamp": "LocalDateTime"
-}
-```
-
----
-
-## CartItemController (`/api/cart-items`)
-
-### `GET /api/cart-items/{itemId}`
-**Description:** Get cart item by ID.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartItemResponseDto`
-
----
-
-### `GET /api/cart-items/cart/{cartId}`
-**Description:** Get all items for a cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** List of `CartItemResponseDto`
-```json
-[
-  { /* CartItemResponseDto */ }
-]
-```
-
----
-
-### `GET /api/cart-items/cart/{cartId}/saved`
-**Description:** Get saved items for a cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** List of `CartItemResponseDto`
-
----
-
-### `POST /api/cart-items/{itemId}/save-for-later`
-**Description:** Save item for later.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartItemResponseDto`
-
----
-
-### `POST /api/cart-items/{itemId}/move-to-cart`
-**Description:** Move saved item back to cart.  
-**Request Headers:** `X-User-Id`, `X-User-Role`
-
-**Response:** `CartItemResponseDto`
-
----
-
-### `GET /api/cart-items/health`
-**Description:** Health check for Cart Item Controller.
-
-**Response:**
-```json
-{
-  "status": "UP",
-  "service": "cart-service-items",
-  "timestamp": "LocalDateTime"
-}
-```
-
----
-
-## HealthController (`/api`)
-
-### `GET /api/health`
-**Description:** Main service health check, including Database and Redis connectivity.
-
-**Response:**
-```json
-{
-  "status": "UP",
-  "service": "bakery-cart-service",
-  "timestamp": "LocalDateTime",
-  "version": "1.0.0",
-  "database": "UP",
-  "databaseUrl": "String",
-  "redis": "UP"
-}
-```
-
----
-
-### `GET /api/info`
-**Description:** Service info details.
-
-**Response:**
-```json
-{
-  "serviceName": "Bakery Cart Service",
-  "description": "Shopping cart management and session handling service",
-  "version": "1.0.0",
-  "features": {
-    "carts": "User and guest cart management",
-    "persistence": "Redis caching with PostgreSQL persistence",
-    "validation": "Real-time stock and price validation",
-    "checkout": "Seamless order creation integration",
-    "analytics": "Cart abandonment and conversion tracking"
-  },
-  "endpoints": {
-    "carts": "/api/carts",
-    "items": "/api/cart-items"
-  }
-}
-```
-
----
-
-### `GET /api/metrics`
-**Description:** Service metrics, including uptime and memory usage.
-
-**Response:**
-```json
-{
-  "uptime": "String (e.g., '0 days, 2 hours, 15 minutes, 30 seconds')",
-  "timestamp": "LocalDateTime",
-  "memory": {
-    "maxMemory": "String (MB)",
-    "totalMemory": "String (MB)",
-    "freeMemory": "String (MB)",
-    "usedMemory": "String (MB)"
-  },
-  "cache": {
-    "redisConnections": "active",
-    "cacheHitRate": "N/A"
   }
 }
 ```
