@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -331,7 +332,7 @@ public class CartController {
 
     // Checkout cart
     @PostMapping("/{cartId}/checkout")
-    public ResponseEntity<Map<String, Object>> checkoutCart(
+    public ResponseEntity<CheckoutResponseDto> checkoutCart(
             @PathVariable UUID cartId,
             @Valid @RequestBody CheckoutRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -344,7 +345,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Map<String, Object> result = cartService.checkoutCart(cartId, request);
+        CheckoutResponseDto result = cartService.checkoutCart(cartId, request);
 
         logger.info("Cart checked out successfully: {}", cartId);
         return ResponseEntity.ok(result);
@@ -352,7 +353,7 @@ public class CartController {
 
     // Checkout 'me' cart
     @PostMapping("/me/checkout")
-    public ResponseEntity<Map<String, Object>> checkoutMyCart(
+    public ResponseEntity<CheckoutResponseDto> checkoutMyCart(
             @Valid @RequestBody CheckoutRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
@@ -374,7 +375,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        Map<String, Object> result = cartService.checkoutCart(cartInfo.getId(), request);
+        CheckoutResponseDto result = cartService.checkoutCart(cartInfo.getId(), request);
 
         logger.info("Cart checked out successfully: {}", cartInfo.getId());
         return ResponseEntity.ok(result);
@@ -402,6 +403,7 @@ public class CartController {
 
     // Get carts by status (Admin only)
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CartResponseDto>> getCartsByStatus(
             @PathVariable Cart.CartStatus status,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -421,6 +423,7 @@ public class CartController {
 
     // Get all carts with pagination (Admin only)
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<CartResponseDto>> getAllCarts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -447,6 +450,7 @@ public class CartController {
 
     // Get cart statistics (Admin only)
     @GetMapping("/statistics")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getCartStatistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -475,13 +479,8 @@ public class CartController {
 
     // Health check
     @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "UP");
-        response.put("service", "cart-service-carts");
-        response.put("timestamp", LocalDateTime.now().toString());
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<org.devofblue.common.dto.HealthResponseDto> health() {
+        return ResponseEntity.ok(new org.devofblue.common.dto.HealthResponseDto("UP", "cart-service-carts"));
     }
 
     // Private helper method for access control

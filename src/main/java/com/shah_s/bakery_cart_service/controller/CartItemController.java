@@ -103,12 +103,7 @@ public class CartItemController {
 
     // Health check
     @GetMapping("/health")
-    public ResponseEntity<Map<String, String>> health() {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "UP");
-        response.put("service", "cart-service-items");
-        response.put("timestamp", LocalDateTime.now().toString());
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<org.devofblue.common.dto.HealthResponseDto> health() {
+        return ResponseEntity.ok(new org.devofblue.common.dto.HealthResponseDto("UP", "cart-service-items"));
     }
 }

@@ -30,7 +30,7 @@ repositories {
 extra["springCloudVersion"] = "2025.0.3"
 
 dependencies {
-	implementation("org.devofblue:common-libs:1.0.8")
+	implementation("org.devofblue:common-libs:2.0.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")

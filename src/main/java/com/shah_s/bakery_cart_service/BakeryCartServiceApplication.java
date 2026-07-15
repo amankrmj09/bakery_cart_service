@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@Import(MethodSecurityConfig.class)
 @EnableDiscoveryClient
+@Import({MethodSecurityConfig.class, org.devofblue.common.security.FeignClientInterceptor.class, org.devofblue.common.feign.FeignConfig.class})
 @EnableFeignClients
 @EnableCaching
 @EnableAsync

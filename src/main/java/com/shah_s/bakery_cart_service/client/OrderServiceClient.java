@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@FeignClient(name = "bakery-order-service", path = "/api/orders")
+@FeignClient(name = "bakery-order-service", path = "/api/orders", fallbackFactory = OrderServiceClientFallbackFactory.class)
 public interface OrderServiceClient {
 
     @PostMapping

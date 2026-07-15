@@ -12,7 +12,7 @@ import org.devofblue.common.dto.StockOperationResponseDto;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "bakery-product-service", path = "/api")
+@FeignClient(name = "bakery-product-service", path = "/api", fallbackFactory = ProductServiceClientFallbackFactory.class)
 public interface ProductServiceClient {
 
     @GetMapping("/products/{productId}")

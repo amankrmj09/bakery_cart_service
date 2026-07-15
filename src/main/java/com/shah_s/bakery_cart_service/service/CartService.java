@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shah_s.bakery_cart_service.client.OrderServiceClient;
 import com.shah_s.bakery_cart_service.client.ProductServiceClient;
 import com.shah_s.bakery_cart_service.dto.*;
+import com.shah_s.bakery_cart_service.dto.CheckoutResponseDto;
 import com.shah_s.bakery_cart_service.dto.order.CreateOrderRequestDto;
 import com.shah_s.bakery_cart_service.dto.order.OrderResponseDto;
 import org.devofblue.common.dto.ProductValidationDto;
@@ -397,7 +398,7 @@ public class CartService {
 
     // Checkout cart
     @CacheEvict(value = "carts", allEntries = true)
-    public Map<String, Object> checkoutCart(UUID cartId, CheckoutRequestDto request) {
+    public CheckoutResponseDto checkoutCart(UUID cartId, CheckoutRequestDto request) {
         logger.info("Checking out cart: {}", cartId);
 
         try {
@@ -424,11 +425,10 @@ public class CartService {
 
             logger.info("Cart checked out successfully: {} -> Order: {}", cartId, orderResponse.getId());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("cart", CartResponseDto.from(cart));
-            response.put("order", orderResponse);
-
-            return response;
+            return CheckoutResponseDto.builder()
+                    .cart(CartResponseDto.from(cart))
+                    .order(orderResponse)
+                    .build();
 
         } catch (Exception e) {
             logger.error("Failed to checkout cart {}: {}", cartId, e.getMessage());
