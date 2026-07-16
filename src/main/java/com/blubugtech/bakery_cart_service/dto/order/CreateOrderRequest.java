@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class CreateOrderRequestDto {
+public class CreateOrderRequest {
     private UUID userId;
     private String customerName;
     private String customerEmail;
@@ -28,7 +28,7 @@ public class CreateOrderRequestDto {
     
     private List<OrderItemDto> items;
 
-    public CreateOrderRequestDto() {}
+    public CreateOrderRequest() {}
 
     // Getters and Setters
     public UUID getUserId() { return userId; }

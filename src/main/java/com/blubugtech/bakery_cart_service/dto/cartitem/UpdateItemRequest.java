@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_cart_service.dto;
+package com.blubugtech.bakery_cart_service.dto.cartitem;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class UpdateItemRequestDto {
+public class UpdateItemRequest {
 
     // Getters and Setters
     @NotNull(message = "Quantity is required")
@@ -21,9 +21,9 @@ public class UpdateItemRequestDto {
     private Map<String, Object> metadata;
 
     // Constructors
-    public UpdateItemRequestDto() {}
+    public UpdateItemRequest() {}
 
-    public UpdateItemRequestDto(Integer quantity) {
+    public UpdateItemRequest(Integer quantity) {
         this.quantity = quantity;
     }
 

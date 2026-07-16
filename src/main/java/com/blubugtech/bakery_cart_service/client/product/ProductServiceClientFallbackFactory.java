@@ -1,11 +1,11 @@
-package com.blubugtech.bakery_cart_service.client;
+package com.blubugtech.bakery_cart_service.client.product;
 
-import com.blubugtech.common.dto.ProductDto;
-import com.blubugtech.common.dto.ProductValidationDto;
-import com.blubugtech.common.dto.StockAvailabilityDto;
-import com.blubugtech.common.dto.StockOperationRequestDto;
-import com.blubugtech.common.dto.StockOperationResponseDto;
-import com.blubugtech.common.exception.FeignClientException;
+import com.blubugtech.common.contract.feign.Product;
+import com.blubugtech.common.contract.feign.ProductValidation;
+import com.blubugtech.common.contract.feign.StockAvailability;
+import com.blubugtech.common.contract.messaging.StockOperationRequestPayload;
+import com.blubugtech.common.contract.messaging.StockOperationResponsePayload;
+import com.blubugtech.common.exception.common.FeignClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;
@@ -24,52 +24,52 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
     public ProductServiceClient create(Throwable cause) {
         return new ProductServiceClient() {
             @Override
-            public ProductDto getProductById(UUID productId) {
+            public Product getProductById(UUID productId) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for getProductById: {}", productId, cause);
                 return null;
             }
 
             @Override
-            public List<ProductDto> getProductsByIds(List<UUID> productIds) {
+            public List<Product> getProductsByIds(List<UUID> productIds) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for getProductsByIds: {}", productIds, cause);
                 return Collections.emptyList();
             }
 
             @Override
-            public StockAvailabilityDto checkStockAvailability(UUID productId, Integer quantity) {
+            public StockAvailability checkStockAvailability(UUID productId, Integer quantity) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for checkStockAvailability: {} for qty {}", productId, quantity, cause);
-                StockAvailabilityDto dto = new StockAvailabilityDto();
+                StockAvailability dto = new StockAvailability();
                 dto.setSufficient(false);
                 dto.setAvailableQuantity(0);
                 return dto;
             }
 
             @Override
-            public StockOperationResponseDto reserveStock(UUID productId, StockOperationRequestDto request) {
+            public StockOperationResponsePayload reserveStock(UUID productId, StockOperationRequestPayload request) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for reserveStock: {}", productId, cause);
                 return createErrorResponse(productId);
             }
 
             @Override
-            public StockOperationResponseDto releaseStock(UUID productId, StockOperationRequestDto request) {
+            public StockOperationResponsePayload releaseStock(UUID productId, StockOperationRequestPayload request) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for releaseStock: {}", productId, cause);
                 return createErrorResponse(productId);
             }
 
             @Override
-            public List<ProductValidationDto> validateProducts(List<UUID> productIds) {
+            public List<ProductValidation> validateProducts(List<UUID> productIds) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for validateProducts: {}", productIds, cause);
                 return Collections.emptyList();
             }
 
-            private StockOperationResponseDto createErrorResponse(UUID productId) {
-                StockOperationResponseDto dto = new StockOperationResponseDto();
+            private StockOperationResponsePayload createErrorResponse(UUID productId) {
+                StockOperationResponsePayload dto = new StockOperationResponsePayload();
                 dto.setProductId(productId);
                 dto.setSuccess(false);
                 dto.setMessage("Service unavailable");

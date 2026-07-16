@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_cart_service.dto;
+package com.blubugtech.bakery_cart_service.dto.cart;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class CartUpdateRequestDto {
+public class CartUpdateRequest {
 
     // Getters and Setters
     @Size(max = 100, message = "Customer name must not exceed 100 characters")
@@ -31,6 +31,6 @@ public class CartUpdateRequestDto {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CartUpdateRequestDto() {}
+    public CartUpdateRequest() {}
 
 }

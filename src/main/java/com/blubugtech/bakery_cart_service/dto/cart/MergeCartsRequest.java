@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_cart_service.dto;
+package com.blubugtech.bakery_cart_service.dto.cart;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class MergeCartsRequestDto {
+public class MergeCartsRequest {
 
     // Getters and Setters
     @NotNull(message = "Source cart ID is required")
@@ -22,9 +22,9 @@ public class MergeCartsRequestDto {
     private Boolean handleDuplicates = true; // Merge quantities for duplicate products
 
     // Constructors
-    public MergeCartsRequestDto() {}
+    public MergeCartsRequest() {}
 
-    public MergeCartsRequestDto(UUID sourceCartId, UUID targetCartId) {
+    public MergeCartsRequest(UUID sourceCartId, UUID targetCartId) {
         this.sourceCartId = sourceCartId;
         this.targetCartId = targetCartId;
     }

@@ -1,6 +1,8 @@
 package com.blubugtech.bakery_cart_service.controller;
 
-import com.blubugtech.bakery_cart_service.dto.*;
+import com.blubugtech.bakery_cart_service.dto.cart.*;
+import com.blubugtech.bakery_cart_service.dto.cartitem.*;
+import com.blubugtech.bakery_cart_service.dto.checkout.*;
 import com.blubugtech.bakery_cart_service.entity.Cart;
 import com.blubugtech.bakery_cart_service.service.CartService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,8 +44,8 @@ public class CartController {
     // Create cart
     @PostMapping
     @Operation(summary = "Create a new cart")
-    public ResponseEntity<CartResponseDto> createCart(
-            @Valid @RequestBody CartRequestDto request,
+    public ResponseEntity<CartResponse> createCart(
+            @Valid @RequestBody CartRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -58,7 +60,7 @@ public class CartController {
             request.setSessionId(sessionId);
         }
 
-        CartResponseDto cart = cartService.createCart(request);
+        CartResponse cart = cartService.createCart(request);
 
         logger.info("Cart created successfully: {}", cart.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
@@ -67,14 +69,14 @@ public class CartController {
     // Get cart by ID
     @GetMapping("/{cartId}")
     @Operation(summary = "Get cart by ID")
-    public ResponseEntity<CartResponseDto> getCartById(
+    public ResponseEntity<CartResponse> getCartById(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Get cart by ID request received: {}", cartId);
 
-        CartResponseDto cart = cartService.getCartById(cartId);
+        CartResponse cart = cartService.getCartById(cartId);
 
         // Check if user can access this cart (unless admin)
         if (userId != null && !"ADMIN".equals(userRole) && cart.getUserId() != null
@@ -89,13 +91,13 @@ public class CartController {
     // Get 'me' cart
     @GetMapping("/me")
     @Operation(summary = "Get 'me' cart")
-    public ResponseEntity<CartResponseDto> getMyCart(
+    public ResponseEntity<CartResponse> getMyCart(
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId) {
 
         logger.info("Get 'me' cart request received");
 
-        CartResponseDto cartInfo = null;
+        CartResponse cartInfo = null;
         if (userId != null) {
             Object result = cartService.getOrCreateCartForUser(userId);
             cartInfo = CartService.convertIfMap(result, objectMapper);
@@ -115,7 +117,7 @@ public class CartController {
     // Get or create cart for user
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get or create cart for user")
-    public ResponseEntity<CartResponseDto> getOrCreateCartForUser(
+    public ResponseEntity<CartResponse> getOrCreateCartForUser(
             @PathVariable UUID userId,
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -128,9 +130,9 @@ public class CartController {
         }
 
         Object result = cartService.getOrCreateCartForUser(userId);
-        CartResponseDto cart = CartService.convertIfMap(result, objectMapper);
+        CartResponse cart = CartService.convertIfMap(result, objectMapper);
         if (cart == null) {
-            logger.error("Failed to convert cached value to CartResponseDto for user: {}", userId);
+            logger.error("Failed to convert cached value to CartResponse for user: {}", userId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(null);
         }
@@ -141,7 +143,7 @@ public class CartController {
     // Get or create cart for session
     @GetMapping("/session/{sessionId}")
     @Operation(summary = "Get or create cart for session")
-    public ResponseEntity<CartResponseDto> getOrCreateCartForSession(
+    public ResponseEntity<CartResponse> getOrCreateCartForSession(
             @PathVariable String sessionId,
             @RequestHeader(value = "X-Session-Id", required = false) String requestSessionId) {
 
@@ -152,7 +154,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.getOrCreateCartForSession(sessionId);
+        CartResponse cart = cartService.getOrCreateCartForSession(sessionId);
 
         logger.info("Cart retrieved/created for session: {}", sessionId);
         return ResponseEntity.ok(cart);
@@ -161,9 +163,9 @@ public class CartController {
     // Add item to cart
     @PostMapping("/{cartId}/items")
     @Operation(summary = "Add an item to a cart")
-    public ResponseEntity<CartResponseDto> addItemToCart(
+    public ResponseEntity<CartResponse> addItemToCart(
             @PathVariable UUID cartId,
-            @Valid @RequestBody AddItemRequestDto request,
+            @Valid @RequestBody AddItemRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -174,7 +176,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.addItemToCart(cartId, request);
+        CartResponse cart = cartService.addItemToCart(cartId, request);
 
         logger.info("Item added to cart successfully: {}", cartId);
         return ResponseEntity.ok(cart);
@@ -183,15 +185,15 @@ public class CartController {
     // Add item to 'me' cart
     @PostMapping("/me/items")
     @Operation(summary = "Add an item to 'me' cart")
-    public ResponseEntity<CartResponseDto> addItemToMyCart(
-            @Valid @RequestBody AddItemRequestDto request,
+    public ResponseEntity<CartResponse> addItemToMyCart(
+            @Valid @RequestBody AddItemRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Add item to 'me' cart request received: product: {}", request.getProductId());
 
-        CartResponseDto cartInfo = null;
+        CartResponse cartInfo = null;
         
         if (userId != null) {
             Object result = cartService.getOrCreateCartForUser(userId);
@@ -207,7 +209,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        CartResponseDto updatedCart = cartService.addItemToCart(cartInfo.getId(), request);
+        CartResponse updatedCart = cartService.addItemToCart(cartInfo.getId(), request);
 
         logger.info("Item added to 'me' cart successfully: {}", updatedCart.getId());
         return ResponseEntity.ok(updatedCart);
@@ -216,10 +218,10 @@ public class CartController {
     // Update item in cart
     @PutMapping("/{cartId}/items/{itemId}")
     @Operation(summary = "Update an item in a cart")
-    public ResponseEntity<CartResponseDto> updateCartItem(
+    public ResponseEntity<CartResponse> updateCartItem(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
-            @Valid @RequestBody UpdateItemRequestDto request,
+            @Valid @RequestBody UpdateItemRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -230,7 +232,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.updateCartItem(cartId, itemId, request);
+        CartResponse cart = cartService.updateCartItem(cartId, itemId, request);
 
         logger.info("Cart item updated successfully: {}", itemId);
         return ResponseEntity.ok(cart);
@@ -239,7 +241,7 @@ public class CartController {
     // Remove item from cart
     @DeleteMapping("/{cartId}/items/{itemId}")
     @Operation(summary = "Remove an item from a cart")
-    public ResponseEntity<CartResponseDto> removeItemFromCart(
+    public ResponseEntity<CartResponse> removeItemFromCart(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -252,7 +254,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.removeItemFromCart(cartId, itemId);
+        CartResponse cart = cartService.removeItemFromCart(cartId, itemId);
 
         logger.info("Item removed from cart successfully: {}", itemId);
         return ResponseEntity.ok(cart);
@@ -261,7 +263,7 @@ public class CartController {
     // Clear cart
     @DeleteMapping("/{cartId}/items")
     @Operation(summary = "Clear all items from a cart")
-    public ResponseEntity<CartResponseDto> clearCart(
+    public ResponseEntity<CartResponse> clearCart(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -273,7 +275,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.clearCart(cartId);
+        CartResponse cart = cartService.clearCart(cartId);
 
         logger.info("Cart cleared successfully: {}", cartId);
         return ResponseEntity.ok(cart);
@@ -282,9 +284,9 @@ public class CartController {
     // Update cart details
     @PatchMapping("/{cartId}")
     @Operation(summary = "Update cart details")
-    public ResponseEntity<CartResponseDto> updateCart(
+    public ResponseEntity<CartResponse> updateCart(
             @PathVariable UUID cartId,
-            @Valid @RequestBody CartUpdateRequestDto request,
+            @Valid @RequestBody CartUpdateRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -295,7 +297,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.updateCart(cartId, request);
+        CartResponse cart = cartService.updateCart(cartId, request);
 
         logger.info("Cart updated successfully: {}", cartId);
         return ResponseEntity.ok(cart);
@@ -304,8 +306,8 @@ public class CartController {
     // Merge carts
     @PostMapping("/merge")
     @Operation(summary = "Merge two carts")
-    public ResponseEntity<CartResponseDto> mergeCarts(
-            @Valid @RequestBody MergeCartsRequestDto request,
+    public ResponseEntity<CartResponse> mergeCarts(
+            @Valid @RequestBody MergeCartsRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -318,7 +320,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.mergeCarts(request);
+        CartResponse cart = cartService.mergeCarts(request);
 
         logger.info("Carts merged successfully: {}", request.getTargetCartId());
         return ResponseEntity.ok(cart);
@@ -327,7 +329,7 @@ public class CartController {
     // Save cart for later
     @PostMapping("/{cartId}/save")
     @Operation(summary = "Save an entire cart for later")
-    public ResponseEntity<CartResponseDto> saveCartForLater(
+    public ResponseEntity<CartResponse> saveCartForLater(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -339,7 +341,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CartResponseDto cart = cartService.saveCartForLater(cartId);
+        CartResponse cart = cartService.saveCartForLater(cartId);
 
         logger.info("Cart saved for later: {}", cartId);
         return ResponseEntity.ok(cart);
@@ -348,9 +350,9 @@ public class CartController {
     // Checkout cart
     @PostMapping("/{cartId}/checkout")
     @Operation(summary = "Checkout a cart")
-    public ResponseEntity<CheckoutResponseDto> checkoutCart(
+    public ResponseEntity<CheckoutResponse> checkoutCart(
             @PathVariable UUID cartId,
-            @Valid @RequestBody CheckoutRequestDto request,
+            @Valid @RequestBody CheckoutRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -361,7 +363,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        CheckoutResponseDto result = cartService.checkoutCart(cartId, request);
+        CheckoutResponse result = cartService.checkoutCart(cartId, request);
 
         logger.info("Cart checked out successfully: {}", cartId);
         return ResponseEntity.ok(result);
@@ -370,15 +372,15 @@ public class CartController {
     // Checkout 'me' cart
     @PostMapping("/me/checkout")
     @Operation(summary = "Checkout 'me' cart")
-    public ResponseEntity<CheckoutResponseDto> checkoutMyCart(
-            @Valid @RequestBody CheckoutRequestDto request,
+    public ResponseEntity<CheckoutResponse> checkoutMyCart(
+            @Valid @RequestBody CheckoutRequest request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Checkout 'me' cart request received");
 
-        CartResponseDto cartInfo = null;
+        CartResponse cartInfo = null;
         if (userId != null) {
             Object result = cartService.getOrCreateCartForUser(userId);
             cartInfo = CartService.convertIfMap(result, objectMapper);
@@ -392,7 +394,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        CheckoutResponseDto result = cartService.checkoutCart(cartInfo.getId(), request);
+        CheckoutResponse result = cartService.checkoutCart(cartInfo.getId(), request);
 
         logger.info("Cart checked out successfully: {}", cartInfo.getId());
         return ResponseEntity.ok(result);
@@ -401,7 +403,7 @@ public class CartController {
     // Get user's carts
     @GetMapping("/user/{userId}/all")
     @Operation(summary = "Get all carts for a user")
-    public ResponseEntity<List<CartResponseDto>> getUserCarts(
+    public ResponseEntity<List<CartResponse>> getUserCarts(
             @PathVariable UUID userId,
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -413,7 +415,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<CartResponseDto> carts = cartService.getUserCarts(userId);
+        List<CartResponse> carts = cartService.getUserCarts(userId);
 
         logger.info("Retrieved {} carts for user", carts.size());
         return ResponseEntity.ok(carts);
@@ -423,7 +425,7 @@ public class CartController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get carts by status (Admin only)")
-    public ResponseEntity<List<CartResponseDto>> getCartsByStatus(
+    public ResponseEntity<List<CartResponse>> getCartsByStatus(
             @PathVariable Cart.CartStatus status,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -434,7 +436,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<CartResponseDto> carts = cartService.getCartsByStatus(status);
+        List<CartResponse> carts = cartService.getCartsByStatus(status);
 
         logger.info("Retrieved {} carts with status {}", carts.size(), status);
         return ResponseEntity.ok(carts);
@@ -444,7 +446,7 @@ public class CartController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all carts (Admin only)")
-    public ResponseEntity<Page<CartResponseDto>> getAllCarts(
+    public ResponseEntity<Page<CartResponse>> getAllCarts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "updatedAt") String sortBy,
@@ -461,7 +463,7 @@ public class CartController {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<CartResponseDto> carts = cartService.getAllCarts(pageable);
+        Page<CartResponse> carts = cartService.getAllCarts(pageable);
 
         logger.info("Retrieved {} carts (page {} of {})", carts.getContent().size(),
                 page + 1, carts.getTotalPages());
@@ -501,8 +503,8 @@ public class CartController {
     // Health check
     @GetMapping("/health")
     @Operation(summary = "Check cart service health")
-    public ResponseEntity<com.blubugtech.common.dto.HealthResponseDto> health() {
-        return ResponseEntity.ok(new com.blubugtech.common.dto.HealthResponseDto("UP", "cart-service-carts"));
+    public ResponseEntity<com.blubugtech.common.contract.feign.HealthResponse> health() {
+        return ResponseEntity.ok(new com.blubugtech.common.contract.feign.HealthResponse("UP", "cart-service-carts"));
     }
 
     // Private helper method for access control
@@ -512,7 +514,7 @@ public class CartController {
         }
 
         try {
-            CartResponseDto cart = cartService.getCartById(cartId);
+            CartResponse cart = cartService.getCartById(cartId);
 
             // Check if user owns the cart or it's a guest cart
             return cart.getUserId() == null ||

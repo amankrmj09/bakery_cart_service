@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_cart_service.dto;
+package com.blubugtech.bakery_cart_service.dto.cart;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CartRequestDto {
+public class CartRequest {
 
     // Getters and Setters
     private UUID userId; // NULL for guest carts
@@ -48,14 +48,14 @@ public class CartRequestDto {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CartRequestDto() {}
+    public CartRequest() {}
 
-    public CartRequestDto(UUID userId, String sessionId) {
+    public CartRequest(UUID userId, String sessionId) {
         this.userId = userId;
         this.sessionId = sessionId;
     }
 
-    public CartRequestDto(String sessionId) {
+    public CartRequest(String sessionId) {
         this.sessionId = sessionId;
     }
 

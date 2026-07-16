@@ -1,7 +1,7 @@
-package com.blubugtech.bakery_cart_service.client;
+package com.blubugtech.bakery_cart_service.client.order;
 
-import com.blubugtech.bakery_cart_service.dto.order.CreateOrderRequestDto;
-import com.blubugtech.bakery_cart_service.dto.order.OrderResponseDto;
+import com.blubugtech.bakery_cart_service.dto.order.CreateOrderRequest;
+import com.blubugtech.bakery_cart_service.dto.order.OrderResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 public interface OrderServiceClient {
 
     @PostMapping
-    OrderResponseDto createOrder(@RequestBody CreateOrderRequestDto orderRequest,
+    OrderResponse createOrder(@RequestBody CreateOrderRequest orderRequest,
                                  @RequestHeader(value = "X-User-Id", required = false) String userId,
                                  @RequestHeader(value = "X-User-Role", required = false) String userRole);
 }

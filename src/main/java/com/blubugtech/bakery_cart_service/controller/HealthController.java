@@ -27,8 +27,8 @@ public class HealthController {
     // Main service health check
     @GetMapping("/health")
     @Operation(summary = "Get overall system health")
-    public ResponseEntity<com.blubugtech.common.dto.HealthResponseDto> health() {
-        com.blubugtech.common.dto.HealthResponseDto response = new com.blubugtech.common.dto.HealthResponseDto("UP", "bakery-cart-service");
+    public ResponseEntity<com.blubugtech.common.contract.feign.HealthResponse> health() {
+        com.blubugtech.common.contract.feign.HealthResponse response = new com.blubugtech.common.contract.feign.HealthResponse("UP", "bakery-cart-service");
         Map<String, Object> details = new HashMap<>();
         details.put("version", "1.0.0");
 

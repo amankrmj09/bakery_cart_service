@@ -65,7 +65,10 @@ dependencies {
 
 	// 8. Tooling & Lombok
 	compileOnly("org.projectlombok:lombok")
+    implementation("org.mapstruct:mapstruct:1.6.0.Beta1")
 	annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0.Beta1")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 	// runtimeOnly("io.micrometer:micrometer-registry-prometheus")

@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_cart_service.dto;
+package com.blubugtech.bakery_cart_service.dto.checkout;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class CheckoutRequestDto {
+public class CheckoutRequest {
 
     // Getters and Setters
     @NotBlank(message = "Customer name is required")
@@ -64,6 +64,6 @@ public class CheckoutRequestDto {
     private Map<String, Object> metadata;
 
     // Constructors
-    public CheckoutRequestDto() {}
+    public CheckoutRequest() {}
 
 }

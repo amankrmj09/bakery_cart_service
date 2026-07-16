@@ -1,4 +1,4 @@
-package com.blubugtech.bakery_cart_service.dto;
+package com.blubugtech.bakery_cart_service.dto.cartitem;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class AddItemRequestDto {
+public class AddItemRequest {
 
     // Getters and Setters
     @NotNull(message = "Product ID is required")
@@ -32,9 +32,9 @@ public class AddItemRequestDto {
     private Map<String, Object> metadata;
 
     // Constructors
-    public AddItemRequestDto() {}
+    public AddItemRequest() {}
 
-    public AddItemRequestDto(UUID productId, Integer quantity) {
+    public AddItemRequest(UUID productId, Integer quantity) {
         this.productId = productId;
         this.quantity = quantity;
     }

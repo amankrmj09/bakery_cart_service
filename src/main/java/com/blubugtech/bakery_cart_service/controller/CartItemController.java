@@ -1,6 +1,6 @@
 package com.blubugtech.bakery_cart_service.controller;
 
-import com.blubugtech.bakery_cart_service.dto.CartItemResponseDto;
+import com.blubugtech.bakery_cart_service.dto.cartitem.CartItemResponse;
 import com.blubugtech.bakery_cart_service.entity.CartItem;
 import com.blubugtech.bakery_cart_service.service.CartItemService;
 import org.slf4j.Logger;
@@ -30,14 +30,14 @@ public class CartItemController {
     // Get cart item by ID
     @GetMapping("/{itemId}")
     @Operation(summary = "Get cart item by ID")
-    public ResponseEntity<CartItemResponseDto> getCartItemById(
+    public ResponseEntity<CartItemResponse> getCartItemById(
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Get cart item by ID request received: {}", itemId);
 
-        CartItemResponseDto item = cartItemService.getCartItemById(itemId);
+        CartItemResponse item = cartItemService.getCartItemById(itemId);
 
         // Basic access control - could be enhanced with cart ownership check
         logger.info("Cart item retrieved: {}", itemId);
@@ -47,14 +47,14 @@ public class CartItemController {
     // Get items for cart
     @GetMapping("/cart/{cartId}")
     @Operation(summary = "Get all items in a cart")
-    public ResponseEntity<List<CartItemResponseDto>> getCartItems(
+    public ResponseEntity<List<CartItemResponse>> getCartItems(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Get cart items request received for cart: {}", cartId);
 
-        List<CartItemResponseDto> items = cartItemService.getCartItems(cartId);
+        List<CartItemResponse> items = cartItemService.getCartItems(cartId);
 
         logger.info("Retrieved {} items for cart", items.size());
         return ResponseEntity.ok(items);
@@ -63,14 +63,14 @@ public class CartItemController {
     // Get saved items for cart
     @GetMapping("/cart/{cartId}/saved")
     @Operation(summary = "Get saved items for a cart")
-    public ResponseEntity<List<CartItemResponseDto>> getSavedItems(
+    public ResponseEntity<List<CartItemResponse>> getSavedItems(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Get saved items request received for cart: {}", cartId);
 
-        List<CartItemResponseDto> items = cartItemService.getSavedItems(cartId);
+        List<CartItemResponse> items = cartItemService.getSavedItems(cartId);
 
         logger.info("Retrieved {} saved items for cart", items.size());
         return ResponseEntity.ok(items);
@@ -79,14 +79,14 @@ public class CartItemController {
     // Save item for later
     @PostMapping("/{itemId}/save-for-later")
     @Operation(summary = "Save an item for later")
-    public ResponseEntity<CartItemResponseDto> saveItemForLater(
+    public ResponseEntity<CartItemResponse> saveItemForLater(
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Save item for later request received: {}", itemId);
 
-        CartItemResponseDto item = cartItemService.saveItemForLater(itemId);
+        CartItemResponse item = cartItemService.saveItemForLater(itemId);
 
         logger.info("Item saved for later: {}", itemId);
         return ResponseEntity.ok(item);
@@ -95,14 +95,14 @@ public class CartItemController {
     // Move item to cart
     @PostMapping("/{itemId}/move-to-cart")
     @Operation(summary = "Move a saved item back to the cart")
-    public ResponseEntity<CartItemResponseDto> moveItemToCart(
+    public ResponseEntity<CartItemResponse> moveItemToCart(
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         logger.info("Move item to cart request received: {}", itemId);
 
-        CartItemResponseDto item = cartItemService.moveItemToCart(itemId);
+        CartItemResponse item = cartItemService.moveItemToCart(itemId);
 
         logger.info("Item moved to cart: {}", itemId);
         return ResponseEntity.ok(item);
@@ -111,7 +111,7 @@ public class CartItemController {
     // Health check
     @GetMapping("/health")
     @Operation(summary = "Check service health")
-    public ResponseEntity<com.blubugtech.common.dto.HealthResponseDto> health() {
-        return ResponseEntity.ok(new com.blubugtech.common.dto.HealthResponseDto("UP", "cart-service-items"));
+    public ResponseEntity<com.blubugtech.common.contract.feign.HealthResponse> health() {
+        return ResponseEntity.ok(new com.blubugtech.common.contract.feign.HealthResponse("UP", "cart-service-items"));
     }
 }

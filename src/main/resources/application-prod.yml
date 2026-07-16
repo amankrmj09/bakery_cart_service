@@ -1,5 +1,6 @@
 spring:
   datasource:
+    
     url: ${CART_DB_URL}
     username: ${CART_DB_USER}
     password: ${CART_DB_PASSWORD}
@@ -7,15 +8,17 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT_CART}
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URL}
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL}
+
 
 springdoc:
   api-docs:
