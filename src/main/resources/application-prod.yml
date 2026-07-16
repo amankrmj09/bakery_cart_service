@@ -1,6 +1,5 @@
 spring:
   datasource:
-    
     url: ${CART_DB_URL}
     username: ${CART_DB_USER}
     password: ${CART_DB_PASSWORD}
