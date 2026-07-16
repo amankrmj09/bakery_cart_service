@@ -56,6 +56,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 
 	// 7. Third-Party Utilities (Jackson, AWS, etc.)
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.5.0")
 	implementation("com.fasterxml.jackson.core:jackson-core")
 	implementation("com.fasterxml.jackson.core:jackson-annotations")
 	implementation("com.fasterxml.jackson.core:jackson-databind")

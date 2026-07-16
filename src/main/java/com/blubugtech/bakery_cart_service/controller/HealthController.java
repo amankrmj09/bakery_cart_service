@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-
+@Tag(name = "System Health", description = "Endpoints for system health, info, and metrics")
 public class HealthController {
 
     @Autowired
@@ -24,6 +26,7 @@ public class HealthController {
 
     // Main service health check
     @GetMapping("/health")
+    @Operation(summary = "Get overall system health")
     public ResponseEntity<com.blubugtech.common.dto.HealthResponseDto> health() {
         com.blubugtech.common.dto.HealthResponseDto response = new com.blubugtech.common.dto.HealthResponseDto("UP", "bakery-cart-service");
         Map<String, Object> details = new HashMap<>();
@@ -54,6 +57,7 @@ public class HealthController {
 
     // Service info
     @GetMapping("/info")
+    @Operation(summary = "Get service information")
     public ResponseEntity<Map<String, Object>> info() {
         Map<String, Object> response = new HashMap<>();
         response.put("serviceName", "Bakery Cart Service");
@@ -76,6 +80,7 @@ public class HealthController {
 
     // Service metrics
     @GetMapping("/metrics")
+    @Operation(summary = "Get service metrics")
     public ResponseEntity<Map<String, Object>> metrics() {
         Map<String, Object> response = new HashMap<>();
         response.put("uptime", getUptime());

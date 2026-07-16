@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -17,7 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cart-items")
-
+@Tag(name = "Cart Items", description = "Endpoints for managing items within a cart")
 public class CartItemController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartItemController.class);
@@ -27,6 +29,7 @@ public class CartItemController {
 
     // Get cart item by ID
     @GetMapping("/{itemId}")
+    @Operation(summary = "Get cart item by ID")
     public ResponseEntity<CartItemResponseDto> getCartItemById(
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -43,6 +46,7 @@ public class CartItemController {
 
     // Get items for cart
     @GetMapping("/cart/{cartId}")
+    @Operation(summary = "Get all items in a cart")
     public ResponseEntity<List<CartItemResponseDto>> getCartItems(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -58,6 +62,7 @@ public class CartItemController {
 
     // Get saved items for cart
     @GetMapping("/cart/{cartId}/saved")
+    @Operation(summary = "Get saved items for a cart")
     public ResponseEntity<List<CartItemResponseDto>> getSavedItems(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -73,6 +78,7 @@ public class CartItemController {
 
     // Save item for later
     @PostMapping("/{itemId}/save-for-later")
+    @Operation(summary = "Save an item for later")
     public ResponseEntity<CartItemResponseDto> saveItemForLater(
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -88,6 +94,7 @@ public class CartItemController {
 
     // Move item to cart
     @PostMapping("/{itemId}/move-to-cart")
+    @Operation(summary = "Move a saved item back to the cart")
     public ResponseEntity<CartItemResponseDto> moveItemToCart(
             @PathVariable UUID itemId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -103,6 +110,7 @@ public class CartItemController {
 
     // Health check
     @GetMapping("/health")
+    @Operation(summary = "Check service health")
     public ResponseEntity<com.blubugtech.common.dto.HealthResponseDto> health() {
         return ResponseEntity.ok(new com.blubugtech.common.dto.HealthResponseDto("UP", "cart-service-items"));
     }

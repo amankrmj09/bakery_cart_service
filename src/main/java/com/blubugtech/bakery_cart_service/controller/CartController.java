@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -26,7 +28,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/carts")
-
+@Tag(name = "Carts", description = "Endpoints for shopping cart management")
 public class CartController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartController.class);
@@ -39,6 +41,7 @@ public class CartController {
 
     // Create cart
     @PostMapping
+    @Operation(summary = "Create a new cart")
     public ResponseEntity<CartResponseDto> createCart(
             @Valid @RequestBody CartRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -63,6 +66,7 @@ public class CartController {
 
     // Get cart by ID
     @GetMapping("/{cartId}")
+    @Operation(summary = "Get cart by ID")
     public ResponseEntity<CartResponseDto> getCartById(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -84,6 +88,7 @@ public class CartController {
 
     // Get 'me' cart
     @GetMapping("/me")
+    @Operation(summary = "Get 'me' cart")
     public ResponseEntity<CartResponseDto> getMyCart(
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId) {
@@ -109,6 +114,7 @@ public class CartController {
 
     // Get or create cart for user
     @GetMapping("/user/{userId}")
+    @Operation(summary = "Get or create cart for user")
     public ResponseEntity<CartResponseDto> getOrCreateCartForUser(
             @PathVariable UUID userId,
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
@@ -134,6 +140,7 @@ public class CartController {
 
     // Get or create cart for session
     @GetMapping("/session/{sessionId}")
+    @Operation(summary = "Get or create cart for session")
     public ResponseEntity<CartResponseDto> getOrCreateCartForSession(
             @PathVariable String sessionId,
             @RequestHeader(value = "X-Session-Id", required = false) String requestSessionId) {
@@ -153,6 +160,7 @@ public class CartController {
 
     // Add item to cart
     @PostMapping("/{cartId}/items")
+    @Operation(summary = "Add an item to a cart")
     public ResponseEntity<CartResponseDto> addItemToCart(
             @PathVariable UUID cartId,
             @Valid @RequestBody AddItemRequestDto request,
@@ -174,6 +182,7 @@ public class CartController {
 
     // Add item to 'me' cart
     @PostMapping("/me/items")
+    @Operation(summary = "Add an item to 'me' cart")
     public ResponseEntity<CartResponseDto> addItemToMyCart(
             @Valid @RequestBody AddItemRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -206,6 +215,7 @@ public class CartController {
 
     // Update item in cart
     @PutMapping("/{cartId}/items/{itemId}")
+    @Operation(summary = "Update an item in a cart")
     public ResponseEntity<CartResponseDto> updateCartItem(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
@@ -228,6 +238,7 @@ public class CartController {
 
     // Remove item from cart
     @DeleteMapping("/{cartId}/items/{itemId}")
+    @Operation(summary = "Remove an item from a cart")
     public ResponseEntity<CartResponseDto> removeItemFromCart(
             @PathVariable UUID cartId,
             @PathVariable UUID itemId,
@@ -249,6 +260,7 @@ public class CartController {
 
     // Clear cart
     @DeleteMapping("/{cartId}/items")
+    @Operation(summary = "Clear all items from a cart")
     public ResponseEntity<CartResponseDto> clearCart(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -269,6 +281,7 @@ public class CartController {
 
     // Update cart details
     @PatchMapping("/{cartId}")
+    @Operation(summary = "Update cart details")
     public ResponseEntity<CartResponseDto> updateCart(
             @PathVariable UUID cartId,
             @Valid @RequestBody CartUpdateRequestDto request,
@@ -290,6 +303,7 @@ public class CartController {
 
     // Merge carts
     @PostMapping("/merge")
+    @Operation(summary = "Merge two carts")
     public ResponseEntity<CartResponseDto> mergeCarts(
             @Valid @RequestBody MergeCartsRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -312,6 +326,7 @@ public class CartController {
 
     // Save cart for later
     @PostMapping("/{cartId}/save")
+    @Operation(summary = "Save an entire cart for later")
     public ResponseEntity<CartResponseDto> saveCartForLater(
             @PathVariable UUID cartId,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -332,6 +347,7 @@ public class CartController {
 
     // Checkout cart
     @PostMapping("/{cartId}/checkout")
+    @Operation(summary = "Checkout a cart")
     public ResponseEntity<CheckoutResponseDto> checkoutCart(
             @PathVariable UUID cartId,
             @Valid @RequestBody CheckoutRequestDto request,
@@ -353,6 +369,7 @@ public class CartController {
 
     // Checkout 'me' cart
     @PostMapping("/me/checkout")
+    @Operation(summary = "Checkout 'me' cart")
     public ResponseEntity<CheckoutResponseDto> checkoutMyCart(
             @Valid @RequestBody CheckoutRequestDto request,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
@@ -383,6 +400,7 @@ public class CartController {
 
     // Get user's carts
     @GetMapping("/user/{userId}/all")
+    @Operation(summary = "Get all carts for a user")
     public ResponseEntity<List<CartResponseDto>> getUserCarts(
             @PathVariable UUID userId,
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
@@ -404,6 +422,7 @@ public class CartController {
     // Get carts by status (Admin only)
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get carts by status (Admin only)")
     public ResponseEntity<List<CartResponseDto>> getCartsByStatus(
             @PathVariable Cart.CartStatus status,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -424,6 +443,7 @@ public class CartController {
     // Get all carts with pagination (Admin only)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all carts (Admin only)")
     public ResponseEntity<Page<CartResponseDto>> getAllCarts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -451,6 +471,7 @@ public class CartController {
     // Get cart statistics (Admin only)
     @GetMapping("/statistics")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get cart statistics (Admin only)")
     public ResponseEntity<Map<String, Object>> getCartStatistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -479,6 +500,7 @@ public class CartController {
 
     // Health check
     @GetMapping("/health")
+    @Operation(summary = "Check cart service health")
     public ResponseEntity<com.blubugtech.common.dto.HealthResponseDto> health() {
         return ResponseEntity.ok(new com.blubugtech.common.dto.HealthResponseDto("UP", "cart-service-carts"));
     }
