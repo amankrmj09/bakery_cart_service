@@ -108,10 +108,5 @@ public class CartItemController {
         return ResponseEntity.ok(item);
     }
 
-    // Health check
-    @GetMapping("/health")
-    @Operation(summary = "Check service health")
-    public ResponseEntity<com.blubugtech.common.contract.feign.HealthResponse> health() {
-        return ResponseEntity.ok(new com.blubugtech.common.contract.feign.HealthResponse("UP", "cart-service-items"));
-    }
+
 }

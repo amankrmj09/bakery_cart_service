@@ -500,13 +500,6 @@ public class CartController {
         return ResponseEntity.ok(statistics);
     }
 
-    // Health check
-    @GetMapping("/health")
-    @Operation(summary = "Check cart service health")
-    public ResponseEntity<com.blubugtech.common.contract.feign.HealthResponse> health() {
-        return ResponseEntity.ok(new com.blubugtech.common.contract.feign.HealthResponse("UP", "cart-service-carts"));
-    }
-
     // Private helper method for access control
     private boolean canAccessCart(UUID cartId, UUID userId, String userRole) {
         if ("ADMIN".equals(userRole)) {

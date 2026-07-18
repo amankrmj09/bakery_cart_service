@@ -215,7 +215,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Request Body:**
   *(Same as Checkout cart)*
 - **Response Body:** `200 OK`
-  `Map<String, Object>`
+  *(Same as Checkout cart Response)*
 
 ### 16. Get all carts for a user
 - **Method:** `GET`
@@ -273,19 +273,6 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 
-### 20. Health Check for Cart Controller
-- **Method:** `GET`
-- **Path:** `/api/carts/health`
-- **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "status": "UP",
-    "service": "cart-service-carts",
-    "timestamp": "LocalDateTime"
-  }
-  ```
 
 ---
 
@@ -332,90 +319,31 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Response Body:** `200 OK`
   `CartItemResponseDto`
 
-### 6. Health Check for CartItem Controller
-- **Method:** `GET`
-- **Path:** `/api/cart-items/health`
-- **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "status": "UP",
-    "service": "cart-service-items",
-    "timestamp": "LocalDateTime"
-  }
-  ```
 
 ---
 
-## Health Controller
-**Base Path:** `/api`
+## System & Monitoring (Actuator)
+**Base Path:** `/actuator`
 
-### 1. Main service health check
-- **Method:** `GET`
-- **Path:** `/api/health`
-- **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "status": "UP",
-    "service": "bakery-cart-service",
-    "timestamp": "LocalDateTime",
-    "version": "1.0.0",
-    "database": "UP",
-    "databaseUrl": "String",
-    "redis": "UP"
-  }
-  ```
+Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 
-### 2. Service info details
+### 1. Health Check
 - **Method:** `GET`
-- **Path:** `/api/info`
+- **Path:** `/actuator/health`
 - **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "serviceName": "Bakery Cart Service",
-    "description": "Shopping cart management and session handling service",
-    "version": "1.0.0",
-    "features": {
-      "carts": "User and guest cart management",
-      "persistence": "Redis caching with PostgreSQL persistence",
-      "validation": "Real-time stock and price validation",
-      "checkout": "Seamless order creation integration",
-      "analytics": "Cart abandonment and conversion tracking"
-    },
-    "endpoints": {
-      "carts": "/api/carts",
-      "items": "/api/cart-items"
-    }
-  }
-  ```
+- **Response Body:** `200 OK` (Standard Actuator Health JSON)
 
-### 3. Service metrics
+### 2. Service Info
 - **Method:** `GET`
-- **Path:** `/api/metrics`
+- **Path:** `/actuator/info`
 - **Type of API:** `Public`
-- **Request Body:** None
-- **Response Body:** `200 OK`
-  ```json
-  {
-    "uptime": "String (e.g., '0 days, 2 hours, 15 minutes, 30 seconds')",
-    "timestamp": "LocalDateTime",
-    "memory": {
-      "maxMemory": "String (MB)",
-      "totalMemory": "String (MB)",
-      "freeMemory": "String (MB)",
-      "usedMemory": "String (MB)"
-    },
-    "cache": {
-      "redisConnections": "active",
-      "cacheHitRate": "N/A"
-    }
-  }
-  ```
+- **Response Body:** `200 OK` (Standard Actuator Info JSON)
+
+### 3. Prometheus Metrics
+- **Method:** `GET`
+- **Path:** `/actuator/prometheus`
+- **Type of API:** `Public`
+- **Response Body:** `200 OK` (Prometheus Text Format)
 
 ---
 
