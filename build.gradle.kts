@@ -31,7 +31,7 @@ extra["springCloudVersion"] = "2025.0.3"
 
 dependencies {
 	// 1. Shared Custom Libraries
-	implementation("org.blubugtech.com:common-libs:2.0.2")
+	implementation("org.blubugtech.com:common-libs:2.0.3")
 
 	// 2. Spring Boot Core & Web
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
