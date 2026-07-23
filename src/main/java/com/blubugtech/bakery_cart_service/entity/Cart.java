@@ -195,8 +195,11 @@ public class Cart {
                 .mapToInt(CartItem::getQuantity)
                 .sum();
 
-        // Calculate tax (8% default)
-        this.taxAmount = subtotal.multiply(new BigDecimal("0.08"));
+        // Calculate tax dynamically from items
+        this.taxAmount = items.stream()
+                .filter(item -> item.getStatus() == CartItem.CartItemStatus.ACTIVE)
+                .map(item -> item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Calculate total (subtotal + tax - discount)
         this.totalAmount = subtotal.add(taxAmount).subtract(discountAmount);

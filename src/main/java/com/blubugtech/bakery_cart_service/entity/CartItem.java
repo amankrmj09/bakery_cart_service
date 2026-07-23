@@ -65,6 +65,15 @@ public class CartItem {
     @DecimalMin(value = "0.00", message = "Total price cannot be negative")
     private BigDecimal totalPrice;
 
+    @Column(name = "tax_class", length = 50)
+    private String taxClass;
+
+    @Column(name = "tax_rate", precision = 10, scale = 4)
+    private BigDecimal taxRate;
+
+    @Column(name = "tax_amount", precision = 10, scale = 2)
+    private BigDecimal taxAmount;
+
     @Column(name = "original_unit_price", precision = 10, scale = 2)
     @DecimalMin(value = "0.00", message = "Original unit price cannot be negative")
     private BigDecimal originalUnitPrice; // For price comparison
@@ -166,8 +175,15 @@ public class CartItem {
     public void calculateTotalPrice() {
         if (quantity != null && unitPrice != null) {
             this.totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+            
+            if (taxRate != null) {
+                this.taxAmount = this.totalPrice.multiply(taxRate);
+            } else {
+                this.taxAmount = BigDecimal.ZERO;
+            }
         } else {
             this.totalPrice = BigDecimal.ZERO;
+            this.taxAmount = BigDecimal.ZERO;
         }
     }
 

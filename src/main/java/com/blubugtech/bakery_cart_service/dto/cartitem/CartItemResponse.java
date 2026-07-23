@@ -23,6 +23,9 @@ public class CartItemResponse {
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
     private BigDecimal originalUnitPrice;
+    private String taxClass;
+    private BigDecimal taxRate;
+    private BigDecimal taxAmount;
     private CartItem.CartItemStatus status;
     private String specialInstructions;
     private String productDescription;

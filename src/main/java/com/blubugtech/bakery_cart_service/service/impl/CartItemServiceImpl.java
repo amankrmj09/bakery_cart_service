@@ -280,6 +280,12 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem.setMetadata(convertMetadataToJson(request.getMetadata()));
         }
 
+        cartItem.setTaxClass(productInfo.getTaxClass() != null ? productInfo.getTaxClass() : "STANDARD");
+        cartItem.setTaxRate(productInfo.getTaxRate() != null ? productInfo.getTaxRate() : new BigDecimal("0.08"));
+        
+        // Recalculate price with new tax rate
+        cartItem.calculateTotalPrice();
+
         return cartItem;
     }
 
@@ -312,6 +318,14 @@ public class CartItemServiceImpl implements CartItemService {
             if (currentPrice != null && !currentPrice.equals(item.getUnitPrice())) {
                 item.setUnitPrice(currentPrice);
                 item.checkPriceChange();
+            }
+
+            if (validation.getTaxClass() != null) {
+                item.setTaxClass(validation.getTaxClass());
+            }
+            if (validation.getTaxRate() != null) {
+                item.setTaxRate(validation.getTaxRate());
+                item.calculateTotalPrice(); // Recalculate tax
             }
 
             item.updateValidation();
