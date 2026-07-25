@@ -68,6 +68,13 @@ public class CartItemServiceImpl implements CartItemService {
                 throw new CartServiceException("Product not found: " + request.getProductId());
             }
 
+            // Check if item already exists in the active items
+            CartItem existingItem = cart.findItemByProductId(request.getProductId());
+            if (existingItem != null) {
+                // Just update the quantity
+                return updateItemQuantity(existingItem.getId(), existingItem.getQuantity() + request.getQuantity());
+            }
+
             // Validate stock if enabled
             if (checkStockOnAdd) {
                 validateStock(request.getProductId(), request.getQuantity());

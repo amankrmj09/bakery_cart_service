@@ -9,5 +9,6 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", uses = {CartItemMapper.class, JsonMapper.class}, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CartMapper {
     @Mapping(target = "metadata", source = "metadata", qualifiedByName = "stringToMap")
+    @Mapping(target = "items", source = "activeItems")
     CartResponse toDto(Cart cart);
 }
