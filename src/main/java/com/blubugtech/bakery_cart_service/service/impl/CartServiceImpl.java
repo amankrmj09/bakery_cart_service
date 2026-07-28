@@ -301,8 +301,42 @@ public class CartServiceImpl implements CartService {
                 cart.setCustomerEmail(request.getCustomerEmail());
             }
             if (request.getDiscountCode() != null) {
-                cart.setDiscountCode(request.getDiscountCode());
-                // TODO: Apply discount logic
+                if (request.getDiscountCode().trim().isEmpty()) {
+                    cart.setDiscountCode(null);
+                    cart.setDiscountAmount(BigDecimal.ZERO);
+                } else {
+                    try {
+                        com.blubugtech.common.contract.feign.CouponValidationResponse couponDetails = productGateway.validateCoupon(request.getDiscountCode(), cart.getSubtotal().doubleValue());
+                        cart.setDiscountCode(couponDetails.getCouponCode());
+                        
+                        String discountType = couponDetails.getDiscountType();
+                        Double discountValue = couponDetails.getDiscountValue();
+                        
+                        if (discountType != null && discountValue != null) {
+                            BigDecimal discountAmt;
+                            if ("PERCENTAGE".equalsIgnoreCase(discountType)) {
+                                discountAmt = cart.getSubtotal().multiply(BigDecimal.valueOf(discountValue / 100.0));
+                            } else {
+                                discountAmt = BigDecimal.valueOf(discountValue);
+                            }
+                            // Cap discount at subtotal
+                            if (discountAmt.compareTo(cart.getSubtotal()) > 0) {
+                                discountAmt = cart.getSubtotal();
+                            }
+                            cart.setDiscountAmount(discountAmt);
+                        } else {
+                            cart.setDiscountAmount(BigDecimal.ZERO);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Failed to validate discount code {}: {}", request.getDiscountCode(), e.getMessage());
+                        if (e.getMessage() != null && e.getMessage().contains("expired")) {
+                            throw new CartServiceException("Coupon code expired and not valid");
+                        } else if (e.getMessage() != null && e.getMessage().contains("doesn't apply")) {
+                            throw new CartServiceException("Doesn't apply on this cart (minimum value not met)");
+                        }
+                        throw new CartServiceException("Invalid coupon code");
+                    }
+                }
             }
             if (request.getSpecialInstructions() != null) {
                 cart.setSpecialInstructions(request.getSpecialInstructions());

@@ -37,4 +37,9 @@ public class FeignProductGateway implements ProductGateway {
     public List<ProductValidation> validateProducts(List<UUID> productIds) {
         return productServiceClient.validateProducts(productIds);
     }
+
+    @Override
+    public com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(String code, Double cartTotal) {
+        return productServiceClient.validateCoupon(code, cartTotal);
+    }
 }

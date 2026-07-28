@@ -35,4 +35,7 @@ public interface ProductServiceClient {
 
     @PostMapping("/products/batch/validate")
     List<ProductValidation> validateProducts(@RequestBody List<UUID> productIds);
+
+    @GetMapping("/storefront/validate-coupon")
+    com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(@RequestParam("code") String code, @RequestParam(value = "cartTotal", required = false) Double cartTotal);
 }

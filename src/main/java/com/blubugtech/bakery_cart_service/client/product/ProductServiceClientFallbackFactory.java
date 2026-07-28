@@ -68,6 +68,13 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
                 return Collections.emptyList();
             }
 
+            @Override
+            public com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(String code, Double cartTotal) {
+                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
+                logger.error("Fallback triggered for validateCoupon: {}", code, cause);
+                throw new RuntimeException("Service unavailable");
+            }
+
             private StockOperationResponsePayload createErrorResponse(UUID productId) {
                 StockOperationResponsePayload dto = new StockOperationResponsePayload();
                 dto.setProductId(productId);

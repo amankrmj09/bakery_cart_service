@@ -11,4 +11,5 @@ public interface ProductGateway {
     boolean checkStock(UUID productId, int quantity);
     StockAvailability checkStockAvailability(UUID productId, int quantity);
     List<ProductValidation> validateProducts(List<UUID> productIds);
+    com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(String code, Double cartTotal);
 }
