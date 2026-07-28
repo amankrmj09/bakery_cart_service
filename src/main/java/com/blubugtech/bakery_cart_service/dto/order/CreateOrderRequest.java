@@ -15,6 +15,7 @@ public class CreateOrderRequest {
     private LocalDateTime deliveryDate;
     private String specialInstructions;
     private String discountCode;
+    private BigDecimal discountAmount;
     
     private String paymentMethod;
     private BigDecimal paymentAmount;
@@ -49,6 +50,8 @@ public class CreateOrderRequest {
     public void setSpecialInstructions(String specialInstructions) { this.specialInstructions = specialInstructions; }
     public String getDiscountCode() { return discountCode; }
     public void setDiscountCode(String discountCode) { this.discountCode = discountCode; }
+    public BigDecimal getDiscountAmount() { return discountAmount; }
+    public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
     public BigDecimal getPaymentAmount() { return paymentAmount; }
