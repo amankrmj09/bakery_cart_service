@@ -3,6 +3,7 @@ package com.blubugtech.bakery_cart_service.controller;
 import com.blubugtech.bakery_cart_service.dto.cartitem.CartItemResponse;
 import com.blubugtech.bakery_cart_service.entity.CartItem;
 import com.blubugtech.bakery_cart_service.service.CartItemService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/cart-items")
 @Tag(name = "Cart Items", description = "Endpoints for managing items within a cart")
+@RequiredArgsConstructor
 public class CartItemController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartItemController.class);
 
-    @Autowired
-    private CartItemService cartItemService;
+    private final CartItemService cartItemService;
 
     // Get cart item by ID
     @GetMapping("/{itemId}")

@@ -1,5 +1,6 @@
 package com.blubugtech.bakery_cart_service.client.product;
 
+import org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse;
 import org.blubakery.bakery_common_libs.contract.feign.Product;
 import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
 import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
@@ -69,7 +70,7 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
             }
 
             @Override
-            public com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(String code, Double cartTotal) {
+            public CouponValidationResponse validateCoupon(String code, Double cartTotal) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 logger.error("Fallback triggered for validateCoupon: {}", code, cause);
                 throw new RuntimeException("Service unavailable");

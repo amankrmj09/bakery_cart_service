@@ -2,6 +2,7 @@ package com.blubugtech.bakery_cart_service.gateway.impl;
 
 import com.blubugtech.bakery_cart_service.client.product.ProductServiceClient;
 import com.blubugtech.bakery_cart_service.gateway.ProductGateway;
+import org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse;
 import org.blubakery.bakery_common_libs.contract.feign.Product;
 import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
 import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
@@ -39,7 +40,7 @@ public class FeignProductGateway implements ProductGateway {
     }
 
     @Override
-    public com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(String code, Double cartTotal) {
+    public CouponValidationResponse validateCoupon(String code, Double cartTotal) {
         return productServiceClient.validateCoupon(code, cartTotal);
     }
 }

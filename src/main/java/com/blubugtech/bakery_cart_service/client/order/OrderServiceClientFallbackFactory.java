@@ -15,15 +15,12 @@ public class OrderServiceClientFallbackFactory implements FallbackFactory<OrderS
 
     @Override
     public OrderServiceClient create(Throwable cause) {
-        return new OrderServiceClient() {
-            @Override
-            public OrderResponse createOrder(CreateOrderRequest orderRequest, String userId, String userRole) {
-                if (cause instanceof FeignClientException) throw (FeignClientException) cause;
-                logger.error("Fallback triggered for createOrder: Order service unavailable", cause);
-                OrderResponse response = new OrderResponse();
-                response.setStatus("FAILED");
-                return response;
-            }
+        return (orderRequest, userId, userRole) -> {
+            if (cause instanceof FeignClientException) throw (FeignClientException) cause;
+            logger.error("Fallback triggered for createOrder: Order service unavailable", cause);
+            OrderResponse response = new OrderResponse();
+            response.setStatus("FAILED");
+            return response;
         };
     }
 }

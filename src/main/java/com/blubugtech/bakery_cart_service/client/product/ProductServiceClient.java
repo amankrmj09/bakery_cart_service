@@ -1,5 +1,6 @@
 package com.blubugtech.bakery_cart_service.client.product;
 
+import org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,5 +38,5 @@ public interface ProductServiceClient {
     List<ProductValidation> validateProducts(@RequestBody List<UUID> productIds);
 
     @GetMapping("/storefront/validate-coupon")
-    com.blubugtech.common.contract.feign.CouponValidationResponse validateCoupon(@RequestParam("code") String code, @RequestParam(value = "cartTotal", required = false) Double cartTotal);
+    CouponValidationResponse validateCoupon(@RequestParam("code") String code, @RequestParam(value = "cartTotal", required = false) Double cartTotal);
 }

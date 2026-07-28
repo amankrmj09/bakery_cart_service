@@ -7,6 +7,7 @@ import com.blubugtech.bakery_cart_service.entity.Cart;
 import com.blubugtech.bakery_cart_service.service.CartService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/carts")
 @Tag(name = "Carts", description = "Endpoints for shopping cart management")
+@RequiredArgsConstructor
 public class CartController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartController.class);
 
-    @Autowired
-    private CartService cartService;
+    private final CartService cartService;
 
-    @Autowired
     private ObjectMapper objectMapper;
 
     // Create cart
@@ -194,7 +194,7 @@ public class CartController {
         logger.info("Add item to 'me' cart request received: product: {}", request.getProductId());
 
         CartResponse cartInfo = null;
-        
+
         if (userId != null) {
             Object result = cartService.getOrCreateCartForUser(userId);
             cartInfo = CartService.convertIfMap(result, objectMapper);
