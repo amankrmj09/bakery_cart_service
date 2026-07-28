@@ -174,22 +174,22 @@ public class CartItem {
     // Business Logic Methods
     public void calculateTotalPrice() {
         if (quantity != null && unitPrice != null) {
-            this.totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+            this.totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).setScale(2, java.math.RoundingMode.HALF_UP);
             
             if (taxRate != null) {
-                this.taxAmount = this.totalPrice.multiply(taxRate);
+                this.taxAmount = this.totalPrice.multiply(taxRate).setScale(2, java.math.RoundingMode.HALF_UP);
             } else {
-                this.taxAmount = BigDecimal.ZERO;
+                this.taxAmount = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
             }
         } else {
-            this.totalPrice = BigDecimal.ZERO;
-            this.taxAmount = BigDecimal.ZERO;
+            this.totalPrice = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
+            this.taxAmount = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
         }
     }
 
     public void checkPriceChange() {
         if (originalUnitPrice != null && unitPrice != null) {
-            this.priceChangeAmount = unitPrice.subtract(originalUnitPrice);
+            this.priceChangeAmount = unitPrice.subtract(originalUnitPrice).setScale(2, java.math.RoundingMode.HALF_UP);
             this.priceChanged = priceChangeAmount.compareTo(BigDecimal.ZERO) != 0;
         }
     }

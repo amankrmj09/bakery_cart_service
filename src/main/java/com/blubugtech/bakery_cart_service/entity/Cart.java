@@ -183,8 +183,9 @@ public class Cart {
     public void updateTotals() {
         this.subtotal = items.stream()
                 .filter(item -> item.getStatus() == CartItem.CartItemStatus.ACTIVE)
-                .map(CartItem::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(item -> item.getTotalPrice() != null ? item.getTotalPrice() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, java.math.RoundingMode.HALF_UP);
 
         this.itemCount = (int) items.stream()
                 .filter(item -> item.getStatus() == CartItem.CartItemStatus.ACTIVE)
@@ -199,14 +200,15 @@ public class Cart {
         this.taxAmount = items.stream()
                 .filter(item -> item.getStatus() == CartItem.CartItemStatus.ACTIVE)
                 .map(item -> item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, java.math.RoundingMode.HALF_UP);
 
         // Calculate total (subtotal + tax - discount)
-        this.totalAmount = subtotal.add(taxAmount).subtract(discountAmount);
+        this.totalAmount = subtotal.add(taxAmount).subtract(discountAmount).setScale(2, java.math.RoundingMode.HALF_UP);
 
         // Ensure total is not negative
         if (this.totalAmount.compareTo(BigDecimal.ZERO) < 0) {
-            this.totalAmount = BigDecimal.ZERO;
+            this.totalAmount = BigDecimal.ZERO.setScale(2, java.math.RoundingMode.HALF_UP);
         }
     }
 
