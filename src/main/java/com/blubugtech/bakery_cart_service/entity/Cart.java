@@ -78,7 +78,7 @@ public class Cart {
 
     @Column(name = "currency_code", length = 3)
     @Size(min = 3, max = 3, message = "Currency code must be 3 characters")
-    private String currencyCode = "USD";
+    private String currencyCode = "INR";
 
     @Column(name = "discount_code", length = 50)
     @Size(max = 50, message = "Discount code must not exceed 50 characters")
