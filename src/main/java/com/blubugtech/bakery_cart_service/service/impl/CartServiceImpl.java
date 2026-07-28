@@ -351,6 +351,7 @@ public class CartServiceImpl implements CartService {
                 cart.setMetadata(convertMetadataToJson(request.getMetadata()));
             }
 
+            cart.updateTotals();
             cart.updateActivity();
             Cart updatedCart = cartRepository.save(cart);
 
