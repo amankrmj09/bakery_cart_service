@@ -1,11 +1,11 @@
 package com.blubugtech.bakery_cart_service.client.product;
 
-import com.blubugtech.common.contract.feign.Product;
-import com.blubugtech.common.contract.feign.ProductValidation;
-import com.blubugtech.common.contract.feign.StockAvailability;
-import com.blubugtech.common.contract.messaging.StockOperationRequestPayload;
-import com.blubugtech.common.contract.messaging.StockOperationResponsePayload;
-import com.blubugtech.common.exception.common.FeignClientException;
+import org.blubakery.bakery_common_libs.contract.feign.Product;
+import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
+import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
+import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
+import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.bakery_common_libs.exception.common.FeignClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;

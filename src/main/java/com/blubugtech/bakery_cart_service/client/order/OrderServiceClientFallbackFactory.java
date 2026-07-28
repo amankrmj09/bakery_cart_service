@@ -2,7 +2,7 @@ package com.blubugtech.bakery_cart_service.client.order;
 
 import com.blubugtech.bakery_cart_service.dto.order.CreateOrderRequest;
 import com.blubugtech.bakery_cart_service.dto.order.OrderResponse;
-import com.blubugtech.common.exception.common.FeignClientException;
+import org.blubakery.bakery_common_libs.exception.common.FeignClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;

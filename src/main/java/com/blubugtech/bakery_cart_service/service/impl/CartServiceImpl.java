@@ -10,7 +10,7 @@ import com.blubugtech.bakery_cart_service.dto.checkout.*;
 import com.blubugtech.bakery_cart_service.dto.checkout.CheckoutResponse;
 import com.blubugtech.bakery_cart_service.dto.order.CreateOrderRequest;
 import com.blubugtech.bakery_cart_service.dto.order.OrderResponse;
-import com.blubugtech.common.contract.feign.ProductValidation;
+import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
 import com.blubugtech.bakery_cart_service.entity.Cart;
 import com.blubugtech.bakery_cart_service.mapper.CartMapper;
 import com.blubugtech.bakery_cart_service.entity.CartItem;

@@ -2,9 +2,9 @@ package com.blubugtech.bakery_cart_service.gateway.impl;
 
 import com.blubugtech.bakery_cart_service.client.product.ProductServiceClient;
 import com.blubugtech.bakery_cart_service.gateway.ProductGateway;
-import com.blubugtech.common.contract.feign.Product;
-import com.blubugtech.common.contract.feign.ProductValidation;
-import com.blubugtech.common.contract.feign.StockAvailability;
+import org.blubakery.bakery_common_libs.contract.feign.Product;
+import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
+import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
