@@ -1,5 +1,6 @@
 package com.blubugtech.bakery_cart_service.service.impl;
-import com.blubugtech.bakery_cart_service.service.*;
+
+import lombok.extern.slf4j.Slf4j;import com.blubugtech.bakery_cart_service.service.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.blubugtech.bakery_cart_service.gateway.OrderGateway;
@@ -16,8 +17,6 @@ import com.blubugtech.bakery_cart_service.mapper.CartMapper;
 import com.blubugtech.bakery_cart_service.entity.CartItem;
 import com.blubugtech.bakery_cart_service.exception.CartServiceException;
 import com.blubugtech.bakery_cart_service.repository.CartRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,9 +34,8 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class CartServiceImpl implements CartService {
-
-    private static final Logger logger = LoggerFactory.getLogger(CartService.class);
 
     @Autowired
     private CartRepository cartRepository;
@@ -73,7 +71,7 @@ public class CartServiceImpl implements CartService {
 
     // Create or get cart
     public CartResponse createCart(CartRequest request) {
-        logger.info("Creating cart for user: {} session: {}", request.getUserId(), request.getSessionId());
+        log.info("Creating cart for user: {} session: {}", request.getUserId(), request.getSessionId());
 
         try {
             // Check if cart already exists
@@ -102,12 +100,12 @@ public class CartServiceImpl implements CartService {
             }
 
             Cart savedCart = cartRepository.save(cart);
-            logger.info("Cart created successfully: {}", savedCart.getId());
+            log.info("Cart created successfully: {}", savedCart.getId());
 
             return cartMapper.toDto(savedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to create cart: {}", e.getMessage());
+            log.error("Failed to create cart: {}", e.getMessage());
             throw new CartServiceException("Failed to create cart: " + e.getMessage());
         }
     }
@@ -116,7 +114,7 @@ public class CartServiceImpl implements CartService {
     @Cacheable(value = "carts", key = "#cartId")
     @Transactional(readOnly = true)
     public CartResponse getCartById(UUID cartId) {
-        logger.debug("Fetching cart by ID: {}", cartId);
+        log.debug("Fetching cart by ID: {}", cartId);
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CartServiceException("Cart not found with ID: " + cartId));
         if (checkPriceOnView) {
@@ -149,7 +147,7 @@ public class CartServiceImpl implements CartService {
     // Get or create cart for user
     @Cacheable(value = "carts", key = "'user-' + #userId")
     public CartResponse getOrCreateCartForUser(UUID userId) {
-        logger.debug("Getting or creating cart for user: {}", userId);
+        log.debug("Getting or creating cart for user: {}", userId);
         Optional<Cart> existingCart = cartRepository.findActiveCartByUserId(userId);
         if (existingCart.isPresent()) {
             Cart cart = existingCart.get();
@@ -167,7 +165,7 @@ public class CartServiceImpl implements CartService {
     // Get or create cart for session
     @Cacheable(value = "carts", key = "'session-' + #sessionId")
     public CartResponse getOrCreateCartForSession(String sessionId) {
-        logger.debug("Getting or creating cart for session: {}", sessionId);
+        log.debug("Getting or creating cart for session: {}", sessionId);
         Optional<Cart> existingCart = cartRepository.findActiveCartBySessionId(sessionId);
         if (existingCart.isPresent()) {
             Cart cart = existingCart.get();
@@ -185,7 +183,7 @@ public class CartServiceImpl implements CartService {
     // Add item to cart
     @CacheEvict(value = "carts", allEntries = true)
     public CartResponse addItemToCart(UUID cartId, AddItemRequest request) {
-        logger.info("Adding item to cart: {} product: {} quantity: {}",
+        log.info("Adding item to cart: {} product: {} quantity: {}",
                 cartId, request.getProductId(), request.getQuantity());
 
         try {
@@ -214,11 +212,11 @@ public class CartServiceImpl implements CartService {
             Cart updatedCart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
-            logger.info("Item added to cart successfully: {}", cartId);
+            log.info("Item added to cart successfully: {}", cartId);
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to add item to cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to add item to cart {}: {}", cartId, e.getMessage());
             throw new CartServiceException("Failed to add item to cart: " + e.getMessage());
         }
     }
@@ -226,7 +224,7 @@ public class CartServiceImpl implements CartService {
     // Update item in cart
     @CacheEvict(value = "carts", allEntries = true)
     public CartResponse updateCartItem(UUID cartId, UUID itemId, UpdateItemRequest request) {
-        logger.info("Updating cart item: {} in cart: {}", itemId, cartId);
+        log.info("Updating cart item: {} in cart: {}", itemId, cartId);
 
         try {
             cartItemService.updateCartItem(itemId, request);
@@ -234,11 +232,11 @@ public class CartServiceImpl implements CartService {
             Cart updatedCart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
-            logger.info("Cart item updated successfully: {}", itemId);
+            log.info("Cart item updated successfully: {}", itemId);
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to update cart item {}: {}", itemId, e.getMessage());
+            log.error("Failed to update cart item {}: {}", itemId, e.getMessage());
             throw new CartServiceException("Failed to update cart item: " + e.getMessage());
         }
     }
@@ -246,7 +244,7 @@ public class CartServiceImpl implements CartService {
     // Remove item from cart
     @CacheEvict(value = "carts", allEntries = true)
     public CartResponse removeItemFromCart(UUID cartId, UUID itemId) {
-        logger.info("Removing item from cart: {} item: {}", cartId, itemId);
+        log.info("Removing item from cart: {} item: {}", cartId, itemId);
 
         try {
             cartItemService.removeItemFromCart(itemId);
@@ -254,11 +252,11 @@ public class CartServiceImpl implements CartService {
             Cart updatedCart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
-            logger.info("Item removed from cart successfully: {}", itemId);
+            log.info("Item removed from cart successfully: {}", itemId);
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to remove item from cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to remove item from cart {}: {}", cartId, e.getMessage());
             throw new CartServiceException("Failed to remove item from cart: " + e.getMessage());
         }
     }
@@ -266,7 +264,7 @@ public class CartServiceImpl implements CartService {
     // Clear cart
     @CacheEvict(value = "carts", allEntries = true)
     public CartResponse clearCart(UUID cartId) {
-        logger.info("Clearing cart: {}", cartId);
+        log.info("Clearing cart: {}", cartId);
 
         try {
             Cart cart = cartRepository.findById(cartId)
@@ -275,11 +273,11 @@ public class CartServiceImpl implements CartService {
             cart.clearItems();
             Cart clearedCart = cartRepository.save(cart);
 
-            logger.info("Cart cleared successfully: {}", cartId);
+            log.info("Cart cleared successfully: {}", cartId);
             return cartMapper.toDto(clearedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to clear cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to clear cart {}: {}", cartId, e.getMessage());
             throw new CartServiceException("Failed to clear cart: " + e.getMessage());
         }
     }
@@ -287,7 +285,7 @@ public class CartServiceImpl implements CartService {
     // Update cart details
     @CacheEvict(value = "carts", allEntries = true)
     public CartResponse updateCart(UUID cartId, CartUpdateRequest request) {
-        logger.info("Updating cart: {}", cartId);
+        log.info("Updating cart: {}", cartId);
 
         try {
             Cart cart = cartRepository.findById(cartId)
@@ -306,7 +304,7 @@ public class CartServiceImpl implements CartService {
                     cart.setDiscountAmount(BigDecimal.ZERO);
                 } else {
                     try {
-                        com.blubugtech.common.contract.feign.CouponValidationResponse couponDetails = productGateway.validateCoupon(request.getDiscountCode(), cart.getSubtotal().doubleValue());
+                        org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse couponDetails = productGateway.validateCoupon(request.getDiscountCode(), cart.getSubtotal().doubleValue());
                         cart.setDiscountCode(couponDetails.getCouponCode());
                         
                         String discountType = couponDetails.getDiscountType();
@@ -328,7 +326,7 @@ public class CartServiceImpl implements CartService {
                             cart.setDiscountAmount(BigDecimal.ZERO);
                         }
                     } catch (Exception e) {
-                        logger.error("Failed to validate discount code {}: {}", request.getDiscountCode(), e.getMessage());
+                        log.error("Failed to validate discount code {}: {}", request.getDiscountCode(), e.getMessage());
                         if (e.getMessage() != null && e.getMessage().contains("expired")) {
                             throw new CartServiceException("Coupon code expired and not valid");
                         } else if (e.getMessage() != null && e.getMessage().contains("doesn't apply")) {
@@ -355,11 +353,11 @@ public class CartServiceImpl implements CartService {
             cart.updateActivity();
             Cart updatedCart = cartRepository.save(cart);
 
-            logger.info("Cart updated successfully: {}", cartId);
+            log.info("Cart updated successfully: {}", cartId);
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to update cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to update cart {}: {}", cartId, e.getMessage());
             throw new CartServiceException("Failed to update cart: " + e.getMessage());
         }
     }
@@ -367,7 +365,7 @@ public class CartServiceImpl implements CartService {
     // Merge carts (for user login)
     @CacheEvict(value = "carts", allEntries = true)
     public CartResponse mergeCarts(MergeCartsRequest request) {
-        logger.info("Merging carts: {} -> {}", request.getSourceCartId(), request.getTargetCartId());
+        log.info("Merging carts: {} -> {}", request.getSourceCartId(), request.getTargetCartId());
 
         try {
             Cart sourceCart = cartRepository.findById(request.getSourceCartId())
@@ -414,11 +412,11 @@ public class CartServiceImpl implements CartService {
                 cartRepository.delete(sourceCart);
             }
 
-            logger.info("Carts merged successfully: {}", request.getTargetCartId());
+            log.info("Carts merged successfully: {}", request.getTargetCartId());
             return cartMapper.toDto(mergedCart);
 
         } catch (Exception e) {
-            logger.error("Failed to merge carts: {}", e.getMessage());
+            log.error("Failed to merge carts: {}", e.getMessage());
             throw new CartServiceException("Failed to merge carts: " + e.getMessage());
         }
     }
@@ -426,7 +424,7 @@ public class CartServiceImpl implements CartService {
     // Save cart for later
     @CacheEvict(value = "carts", key = "#cartId")
     public CartResponse saveCartForLater(UUID cartId) {
-        logger.info("Saving cart for later: {}", cartId);
+        log.info("Saving cart for later: {}", cartId);
 
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CartServiceException("Cart not found with ID: " + cartId));
@@ -440,7 +438,7 @@ public class CartServiceImpl implements CartService {
     // Checkout cart
     @CacheEvict(value = "carts", allEntries = true)
     public CheckoutResponse checkoutCart(UUID cartId, CheckoutRequest request) {
-        logger.info("Checking out cart: {}", cartId);
+        log.info("Checking out cart: {}", cartId);
 
         try {
             Cart cart = cartRepository.findById(cartId)
@@ -464,7 +462,7 @@ public class CartServiceImpl implements CartService {
             cart.markAsConverted(orderResponse.getId());
             cartRepository.save(cart);
 
-            logger.info("Cart checked out successfully: {} -> Order: {}", cartId, orderResponse.getId());
+            log.info("Cart checked out successfully: {} -> Order: {}", cartId, orderResponse.getId());
 
             return CheckoutResponse.builder()
                     .cart(cartMapper.toDto(cart))
@@ -472,7 +470,7 @@ public class CartServiceImpl implements CartService {
                     .build();
 
         } catch (Exception e) {
-            logger.error("Failed to checkout cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to checkout cart {}: {}", cartId, e.getMessage());
             throw new CartServiceException("Failed to checkout cart: " + e.getMessage());
         }
     }
@@ -480,7 +478,7 @@ public class CartServiceImpl implements CartService {
     // Get user carts
     @Transactional(readOnly = true)
     public List<CartResponse> getUserCarts(UUID userId) {
-        logger.debug("Fetching carts for user: {}", userId);
+        log.debug("Fetching carts for user: {}", userId);
 
         return cartRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(cartMapper::toDto)
@@ -490,7 +488,7 @@ public class CartServiceImpl implements CartService {
     // Get carts by status
     @Transactional(readOnly = true)
     public List<CartResponse> getCartsByStatus(Cart.CartStatus status) {
-        logger.debug("Fetching carts by status: {}", status);
+        log.debug("Fetching carts by status: {}", status);
 
         return cartRepository.findByStatusOrderByUpdatedAtDesc(status).stream()
                 .map(cartMapper::toDto)
@@ -500,7 +498,7 @@ public class CartServiceImpl implements CartService {
     // Get all carts with pagination
     @Transactional(readOnly = true)
     public Page<CartResponse> getAllCarts(Pageable pageable) {
-        logger.debug("Fetching all carts with pagination");
+        log.debug("Fetching all carts with pagination");
 
         return cartRepository.findAll(pageable)
                 .map(cartMapper::toDto);
@@ -510,7 +508,7 @@ public class CartServiceImpl implements CartService {
     @Cacheable(value = "cart-stats", key = "#startDate + '-' + #endDate")
     @Transactional(readOnly = true)
     public Map<String, Object> getCartStatistics(LocalDateTime startDate, LocalDateTime endDate) {
-        logger.debug("Fetching cart statistics");
+        log.debug("Fetching cart statistics");
 
         try {
             Object[] stats = cartRepository.getCartStatistics(startDate, endDate);
@@ -534,7 +532,7 @@ public class CartServiceImpl implements CartService {
                     )
             );
         } catch (Exception e) {
-            logger.error("Error fetching cart statistics: {}", e.getMessage());
+            log.error("Error fetching cart statistics: {}", e.getMessage());
             return Map.of("error", "Statistics temporarily unavailable");
         }
     }
@@ -573,7 +571,7 @@ public class CartServiceImpl implements CartService {
             // TODO: Update cart items based on validation results
 
         } catch (Exception e) {
-            logger.warn("Failed to validate cart items for cart {}: {}", cart.getId(), e.getMessage());
+            log.warn("Failed to validate cart items for cart {}: {}", cart.getId(), e.getMessage());
         }
     }
 
@@ -629,7 +627,7 @@ public class CartServiceImpl implements CartService {
         try {
             return objectMapper.writeValueAsString(metadata);
         } catch (Exception e) {
-            logger.warn("Failed to convert metadata to JSON: {}", e.getMessage());
+            log.warn("Failed to convert metadata to JSON: {}", e.getMessage());
             return "{}";
         }
     }

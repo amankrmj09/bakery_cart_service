@@ -1,11 +1,10 @@
 package com.blubugtech.bakery_cart_service.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.blubugtech.bakery_cart_service.dto.cartitem.CartItemResponse;
 import com.blubugtech.bakery_cart_service.entity.CartItem;
 import com.blubugtech.bakery_cart_service.service.CartItemService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +21,8 @@ import java.util.UUID;
 @RequestMapping("/api/cart-items")
 @Tag(name = "Cart Items", description = "Endpoints for managing items within a cart")
 @RequiredArgsConstructor
+@Slf4j
 public class CartItemController {
-
-    private static final Logger logger = LoggerFactory.getLogger(CartItemController.class);
 
     private final CartItemService cartItemService;
 
@@ -36,12 +34,12 @@ public class CartItemController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get cart item by ID request received: {}", itemId);
+        log.info("Get cart item by ID request received: {}", itemId);
 
         CartItemResponse item = cartItemService.getCartItemById(itemId);
 
         // Basic access control - could be enhanced with cart ownership check
-        logger.info("Cart item retrieved: {}", itemId);
+        log.info("Cart item retrieved: {}", itemId);
         return ResponseEntity.ok(item);
     }
 
@@ -53,11 +51,11 @@ public class CartItemController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get cart items request received for cart: {}", cartId);
+        log.info("Get cart items request received for cart: {}", cartId);
 
         List<CartItemResponse> items = cartItemService.getCartItems(cartId);
 
-        logger.info("Retrieved {} items for cart", items.size());
+        log.info("Retrieved {} items for cart", items.size());
         return ResponseEntity.ok(items);
     }
 
@@ -69,11 +67,11 @@ public class CartItemController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get saved items request received for cart: {}", cartId);
+        log.info("Get saved items request received for cart: {}", cartId);
 
         List<CartItemResponse> items = cartItemService.getSavedItems(cartId);
 
-        logger.info("Retrieved {} saved items for cart", items.size());
+        log.info("Retrieved {} saved items for cart", items.size());
         return ResponseEntity.ok(items);
     }
 
@@ -85,11 +83,11 @@ public class CartItemController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Save item for later request received: {}", itemId);
+        log.info("Save item for later request received: {}", itemId);
 
         CartItemResponse item = cartItemService.saveItemForLater(itemId);
 
-        logger.info("Item saved for later: {}", itemId);
+        log.info("Item saved for later: {}", itemId);
         return ResponseEntity.ok(item);
     }
 
@@ -101,11 +99,11 @@ public class CartItemController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Move item to cart request received: {}", itemId);
+        log.info("Move item to cart request received: {}", itemId);
 
         CartItemResponse item = cartItemService.moveItemToCart(itemId);
 
-        logger.info("Item moved to cart: {}", itemId);
+        log.info("Item moved to cart: {}", itemId);
         return ResponseEntity.ok(item);
     }
 

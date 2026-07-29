@@ -1,5 +1,6 @@
 package com.blubugtech.bakery_cart_service.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.blubugtech.bakery_cart_service.dto.cart.*;
 import com.blubugtech.bakery_cart_service.dto.cartitem.*;
 import com.blubugtech.bakery_cart_service.dto.checkout.*;
@@ -8,8 +9,6 @@ import com.blubugtech.bakery_cart_service.service.CartService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,9 +32,8 @@ import java.util.UUID;
 @RequestMapping("/api/carts")
 @Tag(name = "Carts", description = "Endpoints for shopping cart management")
 @RequiredArgsConstructor
+@Slf4j
 public class CartController {
-
-    private static final Logger logger = LoggerFactory.getLogger(CartController.class);
 
     private final CartService cartService;
 
@@ -50,7 +48,7 @@ public class CartController {
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Create cart request received for user: {} session: {}", userId, sessionId);
+        log.info("Create cart request received for user: {} session: {}", userId, sessionId);
 
         // Use header values if available
         if (userId != null) {
@@ -62,7 +60,7 @@ public class CartController {
 
         CartResponse cart = cartService.createCart(request);
 
-        logger.info("Cart created successfully: {}", cart.getId());
+        log.info("Cart created successfully: {}", cart.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
     }
 
@@ -74,7 +72,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get cart by ID request received: {}", cartId);
+        log.info("Get cart by ID request received: {}", cartId);
 
         CartResponse cart = cartService.getCartById(cartId);
 
@@ -84,7 +82,7 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        logger.info("Cart retrieved: {}", cart.getId());
+        log.info("Cart retrieved: {}", cart.getId());
         return ResponseEntity.ok(cart);
     }
 
@@ -95,7 +93,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId) {
 
-        logger.info("Get 'me' cart request received");
+        log.info("Get 'me' cart request received");
 
         CartResponse cartInfo = null;
         if (userId != null) {
@@ -122,7 +120,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get or create cart for user request received: {}", userId);
+        log.info("Get or create cart for user request received: {}", userId);
 
         // Check if user can access this cart (unless admin)
         if (requestUserId != null && !"ADMIN".equals(userRole) && !userId.equals(requestUserId)) {
@@ -132,11 +130,11 @@ public class CartController {
         Object result = cartService.getOrCreateCartForUser(userId);
         CartResponse cart = CartService.convertIfMap(result, objectMapper);
         if (cart == null) {
-            logger.error("Failed to convert cached value to CartResponse for user: {}", userId);
+            log.error("Failed to convert cached value to CartResponse for user: {}", userId);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(null);
         }
-        logger.info("Cart retrieved/created for user: {}", userId);
+        log.info("Cart retrieved/created for user: {}", userId);
         return ResponseEntity.ok(cart);
     }
 
@@ -147,7 +145,7 @@ public class CartController {
             @PathVariable String sessionId,
             @RequestHeader(value = "X-Session-Id", required = false) String requestSessionId) {
 
-        logger.info("Get or create cart for session request received: {}", sessionId);
+        log.info("Get or create cart for session request received: {}", sessionId);
 
         // Basic session validation (could be enhanced with proper session management)
         if (requestSessionId != null && !sessionId.equals(requestSessionId)) {
@@ -156,7 +154,7 @@ public class CartController {
 
         CartResponse cart = cartService.getOrCreateCartForSession(sessionId);
 
-        logger.info("Cart retrieved/created for session: {}", sessionId);
+        log.info("Cart retrieved/created for session: {}", sessionId);
         return ResponseEntity.ok(cart);
     }
 
@@ -169,7 +167,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Add item to cart request received: {} product: {}", cartId, request.getProductId());
+        log.info("Add item to cart request received: {} product: {}", cartId, request.getProductId());
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -178,7 +176,7 @@ public class CartController {
 
         CartResponse cart = cartService.addItemToCart(cartId, request);
 
-        logger.info("Item added to cart successfully: {}", cartId);
+        log.info("Item added to cart successfully: {}", cartId);
         return ResponseEntity.ok(cart);
     }
 
@@ -191,7 +189,7 @@ public class CartController {
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Add item to 'me' cart request received: product: {}", request.getProductId());
+        log.info("Add item to 'me' cart request received: product: {}", request.getProductId());
 
         CartResponse cartInfo = null;
 
@@ -211,7 +209,7 @@ public class CartController {
 
         CartResponse updatedCart = cartService.addItemToCart(cartInfo.getId(), request);
 
-        logger.info("Item added to 'me' cart successfully: {}", updatedCart.getId());
+        log.info("Item added to 'me' cart successfully: {}", updatedCart.getId());
         return ResponseEntity.ok(updatedCart);
     }
 
@@ -225,7 +223,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Update cart item request received: {} item: {}", cartId, itemId);
+        log.info("Update cart item request received: {} item: {}", cartId, itemId);
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -234,7 +232,7 @@ public class CartController {
 
         CartResponse cart = cartService.updateCartItem(cartId, itemId, request);
 
-        logger.info("Cart item updated successfully: {}", itemId);
+        log.info("Cart item updated successfully: {}", itemId);
         return ResponseEntity.ok(cart);
     }
 
@@ -247,7 +245,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Remove item from cart request received: {} item: {}", cartId, itemId);
+        log.info("Remove item from cart request received: {} item: {}", cartId, itemId);
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -256,7 +254,7 @@ public class CartController {
 
         CartResponse cart = cartService.removeItemFromCart(cartId, itemId);
 
-        logger.info("Item removed from cart successfully: {}", itemId);
+        log.info("Item removed from cart successfully: {}", itemId);
         return ResponseEntity.ok(cart);
     }
 
@@ -268,7 +266,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Clear cart request received: {}", cartId);
+        log.info("Clear cart request received: {}", cartId);
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -277,7 +275,7 @@ public class CartController {
 
         CartResponse cart = cartService.clearCart(cartId);
 
-        logger.info("Cart cleared successfully: {}", cartId);
+        log.info("Cart cleared successfully: {}", cartId);
         return ResponseEntity.ok(cart);
     }
 
@@ -290,7 +288,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Update cart request received: {}", cartId);
+        log.info("Update cart request received: {}", cartId);
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -299,7 +297,7 @@ public class CartController {
 
         CartResponse cart = cartService.updateCart(cartId, request);
 
-        logger.info("Cart updated successfully: {}", cartId);
+        log.info("Cart updated successfully: {}", cartId);
         return ResponseEntity.ok(cart);
     }
 
@@ -311,7 +309,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Merge carts request received: {} -> {}",
+        log.info("Merge carts request received: {} -> {}",
                 request.getSourceCartId(), request.getTargetCartId());
 
         // Check access to both carts
@@ -322,7 +320,7 @@ public class CartController {
 
         CartResponse cart = cartService.mergeCarts(request);
 
-        logger.info("Carts merged successfully: {}", request.getTargetCartId());
+        log.info("Carts merged successfully: {}", request.getTargetCartId());
         return ResponseEntity.ok(cart);
     }
 
@@ -334,7 +332,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Save cart for later request received: {}", cartId);
+        log.info("Save cart for later request received: {}", cartId);
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -343,7 +341,7 @@ public class CartController {
 
         CartResponse cart = cartService.saveCartForLater(cartId);
 
-        logger.info("Cart saved for later: {}", cartId);
+        log.info("Cart saved for later: {}", cartId);
         return ResponseEntity.ok(cart);
     }
 
@@ -356,7 +354,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Checkout cart request received: {}", cartId);
+        log.info("Checkout cart request received: {}", cartId);
 
         // Check cart access
         if (!canAccessCart(cartId, userId, userRole)) {
@@ -365,7 +363,7 @@ public class CartController {
 
         CheckoutResponse result = cartService.checkoutCart(cartId, request);
 
-        logger.info("Cart checked out successfully: {}", cartId);
+        log.info("Cart checked out successfully: {}", cartId);
         return ResponseEntity.ok(result);
     }
 
@@ -378,7 +376,7 @@ public class CartController {
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Checkout 'me' cart request received");
+        log.info("Checkout 'me' cart request received");
 
         CartResponse cartInfo = null;
         if (userId != null) {
@@ -396,7 +394,7 @@ public class CartController {
 
         CheckoutResponse result = cartService.checkoutCart(cartInfo.getId(), request);
 
-        logger.info("Cart checked out successfully: {}", cartInfo.getId());
+        log.info("Cart checked out successfully: {}", cartInfo.getId());
         return ResponseEntity.ok(result);
     }
 
@@ -408,7 +406,7 @@ public class CartController {
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get user carts request received: {}", userId);
+        log.info("Get user carts request received: {}", userId);
 
         // Check if user can access these carts (unless admin)
         if (requestUserId != null && !"ADMIN".equals(userRole) && !userId.equals(requestUserId)) {
@@ -417,7 +415,7 @@ public class CartController {
 
         List<CartResponse> carts = cartService.getUserCarts(userId);
 
-        logger.info("Retrieved {} carts for user", carts.size());
+        log.info("Retrieved {} carts for user", carts.size());
         return ResponseEntity.ok(carts);
     }
 
@@ -429,7 +427,7 @@ public class CartController {
             @PathVariable Cart.CartStatus status,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get carts by status request received: {}", status);
+        log.info("Get carts by status request received: {}", status);
 
         // Only admins can view carts by status
         if (!"ADMIN".equals(userRole)) {
@@ -438,7 +436,7 @@ public class CartController {
 
         List<CartResponse> carts = cartService.getCartsByStatus(status);
 
-        logger.info("Retrieved {} carts with status {}", carts.size(), status);
+        log.info("Retrieved {} carts with status {}", carts.size(), status);
         return ResponseEntity.ok(carts);
     }
 
@@ -453,7 +451,7 @@ public class CartController {
             @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get all carts request received (page: {}, size: {})", page, size);
+        log.info("Get all carts request received (page: {}, size: {})", page, size);
 
         // Only admins can view all carts
         if (!"ADMIN".equals(userRole)) {
@@ -465,7 +463,7 @@ public class CartController {
 
         Page<CartResponse> carts = cartService.getAllCarts(pageable);
 
-        logger.info("Retrieved {} carts (page {} of {})", carts.getContent().size(),
+        log.info("Retrieved {} carts (page {} of {})", carts.getContent().size(),
                 page + 1, carts.getTotalPages());
         return ResponseEntity.ok(carts);
     }
@@ -479,7 +477,7 @@ public class CartController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
-        logger.info("Get cart statistics request received");
+        log.info("Get cart statistics request received");
 
         // Only admins can view statistics
         if (!"ADMIN".equals(userRole)) {
@@ -496,7 +494,7 @@ public class CartController {
 
         Map<String, Object> statistics = cartService.getCartStatistics(startDate, endDate);
 
-        logger.info("Cart statistics retrieved");
+        log.info("Cart statistics retrieved");
         return ResponseEntity.ok(statistics);
     }
 
@@ -513,7 +511,7 @@ public class CartController {
             return cart.getUserId() == null ||
                     (userId != null && userId.equals(cart.getUserId()));
         } catch (Exception e) {
-            logger.warn("Failed to check cart access for cart {}: {}", cartId, e.getMessage());
+            log.warn("Failed to check cart access for cart {}: {}", cartId, e.getMessage());
             return false;
         }
     }
