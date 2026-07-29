@@ -3,10 +3,10 @@ package com.blubugtech.bakery_cart_service.gateway;
 import java.util.List;
 import java.util.UUID;
 
-import org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse;
-import org.blubakery.bakery_common_libs.contract.feign.Product;
-import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
-import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
+import org.blubakery.common.feign.contract.feign.CouponValidationResponse;
+import org.blubakery.common.feign.contract.feign.Product;
+import org.blubakery.common.feign.contract.feign.ProductValidation;
+import org.blubakery.common.feign.contract.feign.StockAvailability;
 
 public interface ProductGateway {
     Product getProductById(UUID productId);

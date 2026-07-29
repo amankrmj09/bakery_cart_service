@@ -11,7 +11,7 @@ import com.blubugtech.bakery_cart_service.dto.checkout.*;
 import com.blubugtech.bakery_cart_service.dto.checkout.CheckoutResponse;
 import com.blubugtech.bakery_cart_service.dto.order.CreateOrderRequest;
 import com.blubugtech.bakery_cart_service.dto.order.OrderResponse;
-import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
+import org.blubakery.common.feign.contract.feign.ProductValidation;
 import com.blubugtech.bakery_cart_service.entity.Cart;
 import com.blubugtech.bakery_cart_service.mapper.CartMapper;
 import com.blubugtech.bakery_cart_service.entity.CartItem;
@@ -304,7 +304,7 @@ public class CartServiceImpl implements CartService {
                     cart.setDiscountAmount(BigDecimal.ZERO);
                 } else {
                     try {
-                        org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse couponDetails = productGateway.validateCoupon(request.getDiscountCode(), cart.getSubtotal().doubleValue());
+                        org.blubakery.common.feign.contract.feign.CouponValidationResponse couponDetails = productGateway.validateCoupon(request.getDiscountCode(), cart.getSubtotal().doubleValue());
                         cart.setDiscountCode(couponDetails.getCouponCode());
                         
                         String discountType = couponDetails.getDiscountType();

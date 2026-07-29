@@ -1,14 +1,14 @@
 package com.blubugtech.bakery_cart_service.client.product;
 
-import org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse;
+import org.blubakery.common.feign.contract.feign.CouponValidationResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-import org.blubakery.bakery_common_libs.contract.feign.Product;
-import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
-import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.feign.contract.feign.Product;
+import org.blubakery.common.feign.contract.feign.ProductValidation;
+import org.blubakery.common.feign.contract.feign.StockAvailability;
+import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
+import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,13 +1,14 @@
 package com.blubugtech.bakery_cart_service.client.product;
 
 import lombok.extern.slf4j.Slf4j;
-import org.blubakery.bakery_common_libs.contract.feign.CouponValidationResponse;
-import org.blubakery.bakery_common_libs.contract.feign.Product;
-import org.blubakery.bakery_common_libs.contract.feign.ProductValidation;
-import org.blubakery.bakery_common_libs.contract.feign.StockAvailability;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationRequestPayload;
-import org.blubakery.bakery_common_libs.contract.messaging.StockOperationResponsePayload;
-import org.blubakery.bakery_common_libs.exception.common.FeignClientException;
+import org.blubakery.common.feign.contract.feign.CouponValidationResponse;
+import org.blubakery.common.feign.contract.feign.Product;
+import org.blubakery.common.feign.contract.feign.ProductValidation;
+import org.blubakery.common.feign.contract.feign.StockAvailability;
+import org.blubakery.common.messaging.contract.messaging.StockOperationRequestPayload;
+import org.blubakery.common.messaging.contract.messaging.StockOperationResponsePayload;
+import org.blubakery.common.feign.exception.common.FeignClientException;
+import org.blubakery.common.core.exception.common.ServiceUnavailableException;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -26,60 +27,49 @@ public class ProductServiceClientFallbackFactory implements FallbackFactory<Prod
             public Product getProductById(UUID productId) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for getProductById: {}", productId, cause);
-                return null;
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public List<Product> getProductsByIds(List<UUID> productIds) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for getProductsByIds: {}", productIds, cause);
-                return Collections.emptyList();
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockAvailability checkStockAvailability(UUID productId, Integer quantity) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for checkStockAvailability: {} for qty {}", productId, quantity, cause);
-                StockAvailability dto = new StockAvailability();
-                dto.setSufficient(false);
-                dto.setAvailableQuantity(0);
-                return dto;
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockOperationResponsePayload reserveStock(UUID productId, StockOperationRequestPayload request) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for reserveStock: {}", productId, cause);
-                return createErrorResponse(productId);
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public StockOperationResponsePayload releaseStock(UUID productId, StockOperationRequestPayload request) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for releaseStock: {}", productId, cause);
-                return createErrorResponse(productId);
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public List<ProductValidation> validateProducts(List<UUID> productIds) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for validateProducts: {}", productIds, cause);
-                return Collections.emptyList();
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
 
             @Override
             public CouponValidationResponse validateCoupon(String code, Double cartTotal) {
                 if (cause instanceof FeignClientException) throw (FeignClientException) cause;
                 log.error("Fallback triggered for validateCoupon: {}", code, cause);
-                throw new RuntimeException("Service unavailable");
-            }
-
-            private StockOperationResponsePayload createErrorResponse(UUID productId) {
-                StockOperationResponsePayload dto = new StockOperationResponsePayload();
-                dto.setProductId(productId);
-                dto.setSuccess(false);
-                dto.setMessage("Service unavailable");
-                return dto;
+                throw new ServiceUnavailableException("Product Service is currently unavailable. Please try again later.", cause);
             }
         };
     }

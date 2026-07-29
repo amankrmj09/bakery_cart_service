@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import org.blubakery.bakery_common_libs.exception.handler.BaseExceptionHandler;
-import org.blubakery.bakery_common_libs.exception.handler.ErrorResponse;
+import org.blubakery.common.core.exception.handler.BaseExceptionHandler;
+import org.blubakery.common.core.exception.handler.ErrorResponse;
 
 import java.time.LocalDateTime;
 
