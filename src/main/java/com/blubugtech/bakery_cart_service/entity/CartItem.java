@@ -98,7 +98,7 @@ public class CartItem {
 
     @Column(name = "currency_code", length = 3)
     @Size(min = 3, max = 3, message = "Currency code must be 3 characters")
-    private String currencyCode = "USD";
+    private String currencyCode = org.blubakery.common.core.constants.GlobalAppConstants.CURRENCY_CODE;
 
     // Product availability info
     @Column(name = "is_available")

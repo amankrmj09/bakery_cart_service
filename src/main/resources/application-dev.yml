@@ -11,3 +11,14 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+cart:
+  validation:
+    check-stock-on-add: true
+    check-price-on-view: true
+  limits:
+    max-quantity-per-item: 50
+    max-items-per-cart: 100
+    max-cart-value: 100000.00
+  expiration:
+    cleanup-interval-hours: 6

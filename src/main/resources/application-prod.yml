@@ -18,6 +18,16 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_URL}
 
+cart:
+  validation:
+    check-stock-on-add: ${CART_CHECK_STOCK:true}
+    check-price-on-view: ${CART_CHECK_PRICE:true}
+  limits:
+    max-quantity-per-item: ${CART_MAX_QTY:50}
+    max-items-per-cart: ${CART_MAX_ITEMS:100}
+    max-cart-value: ${CART_MAX_VALUE:100000.00}
+  expiration:
+    cleanup-interval-hours: ${CART_CLEANUP_HOURS:6}
 
 springdoc:
   api-docs:

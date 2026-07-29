@@ -25,7 +25,7 @@ public class CartRequest {
     private String customerEmail;
 
     @Size(min = 3, max = 3, message = "Currency code must be 3 characters")
-    private String currencyCode = "USD";
+    private String currencyCode = org.blubakery.common.core.constants.GlobalAppConstants.CURRENCY_CODE;
 
     @Size(max = 50, message = "Discount code must not exceed 50 characters")
     private String discountCode;
