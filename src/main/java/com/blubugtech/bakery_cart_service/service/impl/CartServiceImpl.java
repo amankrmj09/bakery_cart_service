@@ -137,7 +137,7 @@ public class CartServiceImpl implements CartService {
                 }
                 return objectMapper.convertValue(obj, CartResponse.class);
             } catch (Exception e) {
-                LoggerFactory.getLogger(CartService.class).error("Failed to convert cached map to CartResponse", e);
+                log.error("Failed to convert cached map to CartResponse", e);
                 return null;
             }
         }

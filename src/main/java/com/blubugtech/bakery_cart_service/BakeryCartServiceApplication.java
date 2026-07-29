@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@Import({MethodSecurityConfig.class, com.blubugtech.common.security.FeignClientInterceptor.class, com.blubugtech.common.feign.FeignConfig.class})
+@Import({MethodSecurityConfig.class, org.blubakery.bakery_common_libs.security.FeignClientInterceptor.class, org.blubakery.bakery_common_libs.feign.FeignConfig.class})
 @EnableFeignClients
 @EnableCaching
 @EnableAsync
