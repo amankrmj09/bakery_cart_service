@@ -16,6 +16,38 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        name = "GitHubBakeryCommonCore"
+        url = uri("https://maven.pkg.github.com/amankrmj09/bakery_common_core")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+        }
+    }
+    maven {
+        name = "GitHubBakeryCommonFeign"
+        url = uri("https://maven.pkg.github.com/amankrmj09/bakery_common_feign")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+        }
+    }
+    maven {
+        name = "GitHubBakeryCommonMessaging"
+        url = uri("https://maven.pkg.github.com/amankrmj09/bakery_common_messaging")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+        }
+    }
+    maven {
+        name = "GitHubBakeryCommonSecurity"
+        url = uri("https://maven.pkg.github.com/amankrmj09/bakery_common_security")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+        }
+    }
 }
 
 // extra["snippetsDir"] = file("build/generated-snippets")
