@@ -57,10 +57,7 @@ dependencies {
     implementation("org.blubakery.libs:bakery_common_security:1.0.1")
     implementation("org.blubakery.libs:bakery_common_messaging:1.0.0")
     implementation("org.blubakery.libs:bakery_common_feign:1.0.1")
-    implementation("org.blubakery.libs:bakery_common_core:1.0.1")
-	// 1. Shared Custom Libraries
-	
-
+    implementation("org.blubakery.libs:bakery_common_core:1.0.2")
 	// 2. Spring Boot Core & Web
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
