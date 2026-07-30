@@ -587,6 +587,7 @@ public class CartServiceImpl implements CartService {
         orderRequest.setSpecialInstructions(request.getSpecialInstructions());
         orderRequest.setDiscountCode(request.getDiscountCode());
         orderRequest.setDiscountAmount(cart.getDiscountAmount());
+        orderRequest.setTaxAmount(cart.getTaxAmount());
 
         // Payment information
         orderRequest.setPaymentMethod(request.getPaymentMethod());

@@ -16,6 +16,7 @@ public class CreateOrderRequest {
     private String specialInstructions;
     private String discountCode;
     private BigDecimal discountAmount;
+    private BigDecimal taxAmount;
     
     private String paymentMethod;
     private BigDecimal paymentAmount;
@@ -52,6 +53,8 @@ public class CreateOrderRequest {
     public void setDiscountCode(String discountCode) { this.discountCode = discountCode; }
     public BigDecimal getDiscountAmount() { return discountAmount; }
     public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
+    public BigDecimal getTaxAmount() { return taxAmount; }
+    public void setTaxAmount(BigDecimal taxAmount) { this.taxAmount = taxAmount; }
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
     public BigDecimal getPaymentAmount() { return paymentAmount; }
