@@ -54,7 +54,7 @@ repositories {
 extra["springCloudVersion"] = "2025.0.3"
 
 dependencies {
-    implementation("org.blubakery.libs:bakery_common_security:1.0.2")
+    implementation("org.blubakery.libs:bakery_common_security:1.0.3")
     implementation("org.blubakery.libs:bakery_common_messaging:1.0.1")
     implementation("org.blubakery.libs:bakery_common_feign:1.0.3")
     implementation("org.blubakery.libs:bakery_common_core:1.0.2")
