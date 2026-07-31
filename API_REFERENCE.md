@@ -30,7 +30,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 2. Get cart by ID
 - **Method:** `GET`
@@ -38,7 +38,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 3. Get 'me' cart
 - **Method:** `GET`
@@ -46,7 +46,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 4. Get or create cart for user
 - **Method:** `GET`
@@ -54,7 +54,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 5. Get or create cart for session
 - **Method:** `GET`
@@ -62,7 +62,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 6. Add item to cart
 - **Method:** `POST`
@@ -80,7 +80,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 7. Add item to 'me' cart
 - **Method:** `POST`
@@ -98,7 +98,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 8. Update item in cart
 - **Method:** `PUT`
@@ -113,7 +113,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 9. Remove item from cart
 - **Method:** `DELETE`
@@ -121,7 +121,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 10. Clear cart
 - **Method:** `DELETE`
@@ -129,7 +129,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 11. Update cart details
 - **Method:** `PATCH`
@@ -148,7 +148,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 12. Merge two carts
 - **Method:** `POST`
@@ -164,7 +164,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   }
   ```
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 13. Save cart for later
 - **Method:** `POST`
@@ -172,7 +172,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartResponseDto`
+  `CartResponse`
 
 ### 14. Checkout cart
 - **Method:** `POST`
@@ -225,7 +225,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Response Body:** `200 OK`
   ```json
   [
-    { /* CartResponseDto */ }
+    { /* CartResponse */ }
   ]
   ```
 
@@ -235,7 +235,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `Admin`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `List<CartResponseDto>`
+  `List<CartResponse>`
 
 ### 18. Get all carts (Paginated)
 - **Method:** `GET`
@@ -246,7 +246,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
   ```json
   {
     "content": [
-      { /* CartResponseDto */ }
+      { /* CartResponse */ }
     ],
     "pageable": {
       "pageNumber": 0,
@@ -285,7 +285,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartItemResponseDto`
+  `CartItemResponse`
 
 ### 2. Get all items for a cart
 - **Method:** `GET`
@@ -293,7 +293,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `List<CartItemResponseDto>`
+  `List<CartItemResponse>`
 
 ### 3. Get saved items for a cart
 - **Method:** `GET`
@@ -301,7 +301,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `List<CartItemResponseDto>`
+  `List<CartItemResponse>`
 
 ### 4. Save item for later
 - **Method:** `POST`
@@ -309,7 +309,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartItemResponseDto`
+  `CartItemResponse`
 
 ### 5. Move saved item back to cart
 - **Method:** `POST`
@@ -317,7 +317,7 @@ This document provides a comprehensive reference of all endpoints exposed by the
 - **Type of API:** `User`
 - **Request Body:** None
 - **Response Body:** `200 OK`
-  `CartItemResponseDto`
+  `CartItemResponse`
 
 
 ---
@@ -349,7 +349,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 
 ## Common DTOs
 
-### CartResponseDto
+### CartResponse
 ```json
 {
   "id": "UUID",
@@ -370,10 +370,10 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
   "deliveryType": "String",
   "deliveryAddress": "String",
   "items": [
-    { /* CartItemResponseDto */ }
+    { /* CartItemResponse */ }
   ],
   "savedItems": [
-    { /* CartItemResponseDto */ }
+    { /* CartItemResponse */ }
   ],
   "isEmpty": "Boolean",
   "isExpired": "Boolean",
@@ -395,7 +395,7 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
 }
 ```
 
-### CartItemResponseDto
+### CartItemResponse
 ```json
 {
   "id": "UUID",
@@ -407,6 +407,9 @@ Standard Spring Boot Actuator endpoints are used for monitoring and metrics.
   "unitPrice": "BigDecimal",
   "totalPrice": "BigDecimal",
   "originalUnitPrice": "BigDecimal",
+  "taxClass": "String",
+  "taxRate": "BigDecimal",
+  "taxAmount": "BigDecimal",
   "status": "String",
   "specialInstructions": "String",
   "productDescription": "String",

@@ -448,8 +448,8 @@ public class CartServiceImpl implements CartService {
                 throw new CartServiceException("Cannot checkout empty cart");
             }
 
-            // Validate all items before checkout
-            validateCartItems(cart);
+            // Validate stock before checkout
+            validateStockForCheckout(cart);
 
             // Create order request
             CreateOrderRequest orderRequest = createOrderRequest(cart, request);
@@ -561,17 +561,38 @@ public class CartServiceImpl implements CartService {
     @Async
     protected void validateCartItems(Cart cart) {
         try {
-            List<UUID> productIds = cart.getActiveItems().stream()
-                    .map(CartItem::getProductId)
-                    .collect(Collectors.toList());
-
-            if (productIds.isEmpty()) return;
-
-            List<ProductValidation> productValidations = productGateway.validateProducts(productIds);
-            // TODO: Update cart items based on validation results
-
+            if (cart.getActiveItems().isEmpty()) return;
+            cartItemService.validateCartItems(cart.getActiveItems());
         } catch (Exception e) {
             log.warn("Failed to validate cart items for cart {}: {}", cart.getId(), e.getMessage());
+        }
+    }
+
+    private void validateStockForCheckout(Cart cart) {
+        List<UUID> productIds = cart.getActiveItems().stream()
+                .map(CartItem::getProductId)
+                .collect(Collectors.toList());
+
+        if (productIds.isEmpty()) return;
+
+        try {
+            List<ProductValidation> validations = productGateway.validateProducts(productIds);
+            for (int i = 0; i < cart.getActiveItems().size() && i < validations.size(); i++) {
+                CartItem item = cart.getActiveItems().get(i);
+                ProductValidation validation = validations.get(i);
+                
+                Boolean isAvailable = validation.getAvailable();
+                Integer stockQuantity = validation.getStockQuantity();
+                
+                if (isAvailable == null || !isAvailable || stockQuantity == null || stockQuantity < item.getQuantity()) {
+                    throw new CartServiceException("Currently this item run out of stock please remove this item and proceed: " + item.getProductName());
+                }
+            }
+        } catch (CartServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Failed to validate checkout stock: {}", e.getMessage());
+            throw new CartServiceException("Failed to verify stock for checkout");
         }
     }
 

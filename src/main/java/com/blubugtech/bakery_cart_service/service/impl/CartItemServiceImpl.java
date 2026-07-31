@@ -300,11 +300,13 @@ public class CartItemServiceImpl implements CartItemService {
             Boolean sufficient = stockInfo.getSufficient();
 
             if (sufficient == null || !sufficient) {
-                throw new CartServiceException("Insufficient stock for product: " + productId);
+                throw new CartServiceException("Insufficient stock available for this item");
             }
+        } catch (CartServiceException e) {
+            throw e;
         } catch (Exception e) {
-            log.warn("Stock validation failed for product {}: {}", productId, e.getMessage());
-            // Don't fail the operation, just log the warning
+            log.warn("Stock validation API error for product {}: {}", productId, e.getMessage());
+            throw new CartServiceException("Could not verify stock availability");
         }
     }
 
