@@ -511,7 +511,7 @@ public class CartController {
             return cart.getUserId() == null ||
                     (userId != null && userId.equals(cart.getUserId()));
         } catch (Exception e) {
-            log.warn("Failed to check cart access for cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to check cart access for cart {}", cartId, e);
             return false;
         }
     }

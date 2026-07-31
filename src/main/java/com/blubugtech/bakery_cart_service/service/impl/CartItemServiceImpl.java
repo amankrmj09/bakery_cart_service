@@ -88,7 +88,7 @@ public class CartItemServiceImpl implements CartItemService {
             return cartItemMapper.toDto(savedItem);
 
         } catch (Exception e) {
-            log.error("Failed to add item to cart: {}", e.getMessage());
+            log.error("Failed to add item to cart", e);
             throw new CartServiceException("Failed to add item to cart: " + e.getMessage());
         }
     }
@@ -131,7 +131,7 @@ public class CartItemServiceImpl implements CartItemService {
             return cartItemMapper.toDto(updatedItem);
 
         } catch (Exception e) {
-            log.error("Failed to update cart item {}: {}", itemId, e.getMessage());
+            log.error("Failed to update cart item {}", itemId, e);
             throw new CartServiceException("Failed to update cart item: " + e.getMessage());
         }
     }
@@ -151,16 +151,17 @@ public class CartItemServiceImpl implements CartItemService {
             CartItem cartItem = cartItemRepository.findById(itemId)
                     .orElseThrow(() -> new CartServiceException("Cart item not found with ID: " + itemId));
 
-            cartItem.remove();
-            cartItemRepository.save(cartItem);
+            Cart cart = cartItem.getCart();
+            cart.removeItem(cartItem);
+            cartItemRepository.delete(cartItem);
 
             // Update cart totals
-            cartItem.getCart().updateTotals();
+            cart.updateTotals();
 
             log.info("Item removed from cart successfully: {}", itemId);
 
         } catch (Exception e) {
-            log.error("Failed to remove item from cart {}: {}", itemId, e.getMessage());
+            log.error("Failed to remove item from cart {}", itemId, e);
             throw new CartServiceException("Failed to remove item from cart: " + e.getMessage());
         }
     }
@@ -252,7 +253,7 @@ public class CartItemServiceImpl implements CartItemService {
             }
 
         } catch (Exception e) {
-            log.warn("Failed to validate cart items: {}", e.getMessage());
+            log.error("Failed to validate cart items", e);
         }
     }
 
@@ -305,7 +306,7 @@ public class CartItemServiceImpl implements CartItemService {
         } catch (CartServiceException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Stock validation API error for product {}: {}", productId, e.getMessage());
+            log.error("Stock validation API error for product {}", productId, e);
             throw new CartServiceException("Could not verify stock availability");
         }
     }
@@ -339,7 +340,7 @@ public class CartItemServiceImpl implements CartItemService {
             cartItemRepository.save(item);
 
         } catch (Exception e) {
-            log.warn("Failed to update item from validation: {}", e.getMessage());
+            log.error("Failed to update item from validation", e);
         }
     }
 
@@ -349,7 +350,7 @@ public class CartItemServiceImpl implements CartItemService {
         try {
             return objectMapper.writeValueAsString(metadata);
         } catch (Exception e) {
-            log.warn("Failed to convert metadata to JSON: {}", e.getMessage());
+            log.error("Failed to convert metadata to JSON", e);
             return "{}";
         }
     }

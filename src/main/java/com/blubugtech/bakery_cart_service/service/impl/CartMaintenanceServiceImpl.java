@@ -80,7 +80,7 @@ public class CartMaintenanceServiceImpl implements CartMaintenanceService {
             log.info("Found {} abandoned carts for notification", abandonedCarts.size());
 
         } catch (Exception e) {
-            log.error("Error sending abandonment notifications: {}", e.getMessage());
+            log.error("Error sending abandonment notifications", e);
         }
     }
 }

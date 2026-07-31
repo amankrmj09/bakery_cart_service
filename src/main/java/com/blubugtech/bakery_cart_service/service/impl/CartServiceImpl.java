@@ -105,7 +105,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(savedCart);
 
         } catch (Exception e) {
-            log.error("Failed to create cart: {}", e.getMessage());
+            log.error("Failed to create cart", e);
             throw new CartServiceException("Failed to create cart: " + e.getMessage());
         }
     }
@@ -216,7 +216,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            log.error("Failed to add item to cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to add item to cart {}", cartId, e);
             throw new CartServiceException("Failed to add item to cart: " + e.getMessage());
         }
     }
@@ -236,7 +236,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            log.error("Failed to update cart item {}: {}", itemId, e.getMessage());
+            log.error("Failed to update cart item {}", itemId, e);
             throw new CartServiceException("Failed to update cart item: " + e.getMessage());
         }
     }
@@ -256,7 +256,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            log.error("Failed to remove item from cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to remove item from cart {}", cartId, e);
             throw new CartServiceException("Failed to remove item from cart: " + e.getMessage());
         }
     }
@@ -277,7 +277,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(clearedCart);
 
         } catch (Exception e) {
-            log.error("Failed to clear cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to clear cart {}", cartId, e);
             throw new CartServiceException("Failed to clear cart: " + e.getMessage());
         }
     }
@@ -326,7 +326,7 @@ public class CartServiceImpl implements CartService {
                             cart.setDiscountAmount(BigDecimal.ZERO);
                         }
                     } catch (Exception e) {
-                        log.error("Failed to validate discount code {}: {}", request.getDiscountCode(), e.getMessage());
+                        log.error("Failed to validate discount code {}", request.getDiscountCode(), e);
                         if (e.getMessage() != null && e.getMessage().contains("expired")) {
                             throw new CartServiceException("Coupon code expired and not valid");
                         } else if (e.getMessage() != null && e.getMessage().contains("doesn't apply")) {
@@ -357,7 +357,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(updatedCart);
 
         } catch (Exception e) {
-            log.error("Failed to update cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to update cart {}", cartId, e);
             throw new CartServiceException("Failed to update cart: " + e.getMessage());
         }
     }
@@ -416,7 +416,7 @@ public class CartServiceImpl implements CartService {
             return cartMapper.toDto(mergedCart);
 
         } catch (Exception e) {
-            log.error("Failed to merge carts: {}", e.getMessage());
+            log.error("Failed to merge carts", e);
             throw new CartServiceException("Failed to merge carts: " + e.getMessage());
         }
     }
@@ -470,7 +470,7 @@ public class CartServiceImpl implements CartService {
                     .build();
 
         } catch (Exception e) {
-            log.error("Failed to checkout cart {}: {}", cartId, e.getMessage());
+            log.error("Failed to checkout cart {}", cartId, e);
             throw new CartServiceException("Failed to checkout cart: " + e.getMessage());
         }
     }
@@ -532,7 +532,7 @@ public class CartServiceImpl implements CartService {
                     )
             );
         } catch (Exception e) {
-            log.error("Error fetching cart statistics: {}", e.getMessage());
+            log.error("Error fetching cart statistics", e);
             return Map.of("error", "Statistics temporarily unavailable");
         }
     }
@@ -564,7 +564,7 @@ public class CartServiceImpl implements CartService {
             if (cart.getActiveItems().isEmpty()) return;
             cartItemService.validateCartItems(cart.getActiveItems());
         } catch (Exception e) {
-            log.warn("Failed to validate cart items for cart {}: {}", cart.getId(), e.getMessage());
+            log.error("Failed to validate cart items for cart {}", cart.getId(), e);
         }
     }
 
@@ -591,7 +591,7 @@ public class CartServiceImpl implements CartService {
         } catch (CartServiceException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Failed to validate checkout stock: {}", e.getMessage());
+            log.error("Failed to validate checkout stock", e);
             throw new CartServiceException("Failed to verify stock for checkout");
         }
     }
@@ -649,7 +649,7 @@ public class CartServiceImpl implements CartService {
         try {
             return objectMapper.writeValueAsString(metadata);
         } catch (Exception e) {
-            log.warn("Failed to convert metadata to JSON: {}", e.getMessage());
+            log.error("Failed to convert metadata to JSON", e);
             return "{}";
         }
     }
