@@ -30,13 +30,4 @@ public interface CartService {
     Page<CartResponse> getAllCarts(Pageable pageable);
     Map<String, Object> getCartStatistics(LocalDateTime startDate, LocalDateTime endDate);
     
-    static CartResponse convertIfMap(Object obj, ObjectMapper objectMapper) {
-        if (obj instanceof CartResponse) {
-            return (CartResponse) obj;
-        }
-        if (obj instanceof Map) {
-            return objectMapper.convertValue(obj, CartResponse.class);
-        }
-        throw new IllegalArgumentException("Unknown type for cart: " + obj.getClass());
-    }
 }
