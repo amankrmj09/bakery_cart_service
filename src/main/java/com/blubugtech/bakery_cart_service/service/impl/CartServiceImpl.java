@@ -12,8 +12,10 @@ import com.blubugtech.bakery_cart_service.dto.checkout.CheckoutResponse;
 import com.blubugtech.bakery_cart_service.dto.order.CreateOrderRequest;
 import com.blubugtech.bakery_cart_service.dto.order.OrderResponse;
 import org.blubakery.common.feign.contract.feign.ProductValidation;
-import com.blubugtech.bakery_cart_service.entity.Cart;
+import com.blubugtech.bakery_cart_service.strategy.DiscountCalculationStrategy;
+import com.blubugtech.bakery_cart_service.strategy.OrderRequestMappingStrategy;
 import com.blubugtech.bakery_cart_service.mapper.CartMapper;
+import com.blubugtech.bakery_cart_service.entity.Cart;
 import com.blubugtech.bakery_cart_service.entity.CartItem;
 import com.blubugtech.bakery_cart_service.exception.CartServiceException;
 import com.blubugtech.bakery_cart_service.repository.CartRepository;
@@ -53,6 +55,12 @@ public class CartServiceImpl implements CartService {
     private ObjectMapper objectMapper;
     @Autowired
     private CartMapper cartMapper;
+
+    @Autowired
+    private DiscountCalculationStrategy discountCalculationStrategy;
+
+    @Autowired
+    private OrderRequestMappingStrategy orderRequestMappingStrategy;
 
     @Value("${cart.limits.max-items-per-cart:100}")
     private Integer maxItemsPerCart;
@@ -120,28 +128,7 @@ public class CartServiceImpl implements CartService {
         if (checkPriceOnView) {
             validateCartItems(cart);
         }
-        CartResponse response = cartMapper.toDto(cart);
-        return convertIfMap(response, objectMapper);
-    }
-
-    // Utility to convert LinkedHashMap to CartResponse
-    public static CartResponse convertIfMap(Object obj, ObjectMapper objectMapper) {
-        if (obj instanceof java.util.LinkedHashMap) {
-            try {
-                // Remove '@class' field if present
-                Map<?, ?> map = (Map<?, ?>) obj;
-                if (map.containsKey("@class")) {
-                    Map<Object, Object> cleaned = new java.util.LinkedHashMap<>(map);
-                    cleaned.remove("@class");
-                    return objectMapper.convertValue(cleaned, CartResponse.class);
-                }
-                return objectMapper.convertValue(obj, CartResponse.class);
-            } catch (Exception e) {
-                log.error("Failed to convert cached map to CartResponse", e);
-                return null;
-            }
-        }
-        return (CartResponse) obj;
+        return cartMapper.toDto(cart);
     }
 
     // Get or create cart for user
@@ -154,12 +141,10 @@ public class CartServiceImpl implements CartService {
             if (checkPriceOnView) {
                 validateCartItems(cart);
             }
-            CartResponse response = cartMapper.toDto(cart);
-            return convertIfMap(response, objectMapper);
+            return cartMapper.toDto(cart);
         }
         CartRequest request = new CartRequest(userId, null);
-        CartResponse response = createCart(request);
-        return convertIfMap(response, objectMapper);
+        return createCart(request);
     }
 
     // Get or create cart for session
@@ -172,12 +157,10 @@ public class CartServiceImpl implements CartService {
             if (checkPriceOnView) {
                 validateCartItems(cart);
             }
-            CartResponse response = cartMapper.toDto(cart);
-            return convertIfMap(response, objectMapper);
+            return cartMapper.toDto(cart);
         }
         CartRequest request = new CartRequest(sessionId);
-        CartResponse response = createCart(request);
-        return convertIfMap(response, objectMapper);
+        return createCart(request);
     }
 
     // Add item to cart
@@ -310,21 +293,8 @@ public class CartServiceImpl implements CartService {
                         String discountType = couponDetails.getDiscountType();
                         Double discountValue = couponDetails.getDiscountValue();
                         
-                        if (discountType != null && discountValue != null) {
-                            BigDecimal discountAmt;
-                            if ("PERCENTAGE".equalsIgnoreCase(discountType)) {
-                                discountAmt = cart.getSubtotal().multiply(BigDecimal.valueOf(discountValue / 100.0));
-                            } else {
-                                discountAmt = BigDecimal.valueOf(discountValue);
-                            }
-                            // Cap discount at subtotal
-                            if (discountAmt.compareTo(cart.getSubtotal()) > 0) {
-                                discountAmt = cart.getSubtotal();
-                            }
-                            cart.setDiscountAmount(discountAmt);
-                        } else {
-                            cart.setDiscountAmount(BigDecimal.ZERO);
-                        }
+                        BigDecimal discountAmt = discountCalculationStrategy.calculateDiscount(discountType, discountValue, cart.getSubtotal());
+                        cart.setDiscountAmount(discountAmt);
                     } catch (Exception e) {
                         log.error("Failed to validate discount code {}", request.getDiscountCode(), e);
                         if (e.getMessage() != null && e.getMessage().contains("expired")) {
@@ -452,7 +422,7 @@ public class CartServiceImpl implements CartService {
             validateStockForCheckout(cart);
 
             // Create order request
-            CreateOrderRequest orderRequest = createOrderRequest(cart, request);
+            CreateOrderRequest orderRequest = orderRequestMappingStrategy.createOrderRequest(cart, request);
 
             // Call Order Service
             OrderResponse orderResponse = orderGateway.createOrder(orderRequest,
@@ -594,55 +564,6 @@ public class CartServiceImpl implements CartService {
             log.error("Failed to validate checkout stock", e);
             throw new CartServiceException("Failed to verify stock for checkout");
         }
-    }
-
-    private CreateOrderRequest createOrderRequest(Cart cart, CheckoutRequest request) {
-        CreateOrderRequest orderRequest = new CreateOrderRequest();
-        orderRequest.setUserId(cart.getUserId());
-        orderRequest.setCustomerName(request.getCustomerName());
-        orderRequest.setCustomerEmail(request.getCustomerEmail());
-        orderRequest.setCustomerPhone(request.getCustomerPhone());
-        orderRequest.setDeliveryType(request.getDeliveryType());
-        orderRequest.setDeliveryAddress(request.getDeliveryAddress());
-        orderRequest.setDeliveryDate(request.getDeliveryDate());
-        orderRequest.setSpecialInstructions(request.getSpecialInstructions());
-        orderRequest.setDiscountCode(request.getDiscountCode());
-        orderRequest.setDiscountAmount(cart.getDiscountAmount());
-        orderRequest.setTaxAmount(cart.getTaxAmount());
-
-        // Payment information
-        orderRequest.setPaymentMethod(request.getPaymentMethod());
-        
-        BigDecimal paymentAmount = cart.getTotalAmount();
-        if ("DELIVERY".equals(request.getDeliveryType())) {
-            paymentAmount = paymentAmount.add(new BigDecimal("5.00"));
-        }
-        orderRequest.setPaymentAmount(paymentAmount);
-        
-        orderRequest.setCurrencyCode(cart.getCurrencyCode());
-        orderRequest.setCardLastFour(request.getCardLastFour());
-        orderRequest.setCardBrand(request.getCardBrand());
-        orderRequest.setCardType(request.getCardType());
-        orderRequest.setDigitalWalletProvider(request.getDigitalWalletProvider());
-        orderRequest.setBankName(request.getBankName());
-        orderRequest.setPaymentNotes(request.getPaymentNotes());
-
-        // Order items
-        List<CreateOrderRequest.OrderItemDto> items = cart.getActiveItems().stream()
-                .map(this::convertCartItemToOrderItem)
-                .collect(Collectors.toList());
-        orderRequest.setItems(items);
-
-        return orderRequest;
-    }
-
-    private CreateOrderRequest.OrderItemDto convertCartItemToOrderItem(CartItem cartItem) {
-        CreateOrderRequest.OrderItemDto orderItem = new CreateOrderRequest.OrderItemDto();
-        orderItem.setProductId(cartItem.getProductId());
-        orderItem.setQuantity(cartItem.getQuantity());
-        orderItem.setUnitPriceOverride(cartItem.getUnitPrice());
-        orderItem.setSpecialInstructions(cartItem.getSpecialInstructions());
-        return orderItem;
     }
 
     private String convertMetadataToJson(Map<String, Object> metadata) {
