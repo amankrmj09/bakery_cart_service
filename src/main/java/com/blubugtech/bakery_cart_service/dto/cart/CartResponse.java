@@ -1,40 +1,59 @@
 package com.blubugtech.bakery_cart_service.dto.cart;
 import com.blubugtech.bakery_cart_service.dto.cartitem.CartItemResponse;
-
 import com.blubugtech.bakery_cart_service.entity.Cart;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartResponse {
 
-    // Getters and Setters
     private UUID id;
     private UUID userId;
     private String sessionId;
-    private Cart.CartStatus status;
+    
+    @Builder.Default
+    private Cart.CartStatus status = Cart.CartStatus.ACTIVE;
+    
     private String customerName;
     private String customerEmail;
-    private BigDecimal subtotal;
-    private BigDecimal taxAmount;
-    private BigDecimal discountAmount;
-    private BigDecimal totalAmount;
-    private Integer itemCount;
+    
+    @Builder.Default
+    private BigDecimal subtotal = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private BigDecimal taxAmount = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private BigDecimal totalAmount = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private Integer itemCount = 0;
+    
     private Integer totalQuantity;
     private String currencyCode;
     private String discountCode;
     private String specialInstructions;
     private String deliveryType;
     private String deliveryAddress;
-    private List<CartItemResponse> items;
+    
+    @Builder.Default
+    private List<CartItemResponse> items = new ArrayList<>();
+    
     private List<CartItemResponse> savedItems; // Items saved for later
     private Boolean isEmpty;
     private Boolean isExpired;
@@ -52,7 +71,4 @@ public class CartResponse {
     private String deviceType;
     private Map<String, Object> metadata;
 
-    // Constructors
-    public CartResponse() {}
-
-    }
+}

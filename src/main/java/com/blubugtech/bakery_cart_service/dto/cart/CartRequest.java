@@ -2,6 +2,7 @@ package com.blubugtech.bakery_cart_service.dto.cart;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Map;
@@ -9,9 +10,11 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class CartRequest {
 
     // Getters and Setters
+    @NotNull(message = "User ID is required")
     private UUID userId; // NULL for guest carts
 
     @Size(max = 255, message = "Session ID must not exceed 255 characters")
@@ -46,17 +49,5 @@ public class CartRequest {
     private String userAgent;
 
     private Map<String, Object> metadata;
-
-    // Constructors
-    public CartRequest() {}
-
-    public CartRequest(UUID userId, String sessionId) {
-        this.userId = userId;
-        this.sessionId = sessionId;
-    }
-
-    public CartRequest(String sessionId) {
-        this.sessionId = sessionId;
-    }
 
 }

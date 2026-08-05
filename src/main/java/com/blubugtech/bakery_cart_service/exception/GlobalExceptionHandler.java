@@ -25,7 +25,7 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     })
     public ResponseEntity<ErrorResponse> handleBadRequestExceptions(RuntimeException ex, WebRequest request) {
         log.error("Cart service bad request error: {}", ex.getMessage());
-        return ResponseEntity.badRequest().body(new ErrorResponse("BAD_REQUEST", ex.getMessage(), LocalDateTime.now(), request.getDescription(false)));
+        return ResponseEntity.badRequest().body(ErrorResponse.builder().code("BAD_REQUEST").message(ex.getMessage()).timestamp(LocalDateTime.now()).path(request.getDescription(false)).build());
     }
 
     @ExceptionHandler({
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
     })
     public ResponseEntity<ErrorResponse> handleNotFoundExceptions(RuntimeException ex, WebRequest request) {
         log.error("Cart service not found error: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("NOT_FOUND", ex.getMessage(), LocalDateTime.now(), request.getDescription(false)));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder().code("NOT_FOUND").message(ex.getMessage()).timestamp(LocalDateTime.now()).path(request.getDescription(false)).build());
     }
 
     @ExceptionHandler(FeignException.class)
@@ -49,6 +49,6 @@ public class GlobalExceptionHandler extends BaseExceptionHandler {
             message = "Invalid request to external service";
             status = HttpStatus.BAD_REQUEST;
         }
-        return ResponseEntity.status(status).body(new ErrorResponse("EXTERNAL_SERVICE_ERROR", message, LocalDateTime.now(), request.getDescription(false)));
+        return ResponseEntity.status(status).body(ErrorResponse.builder().code("EXTERNAL_SERVICE_ERROR").message(message).timestamp(LocalDateTime.now()).path(request.getDescription(false)).build());
     }
 }

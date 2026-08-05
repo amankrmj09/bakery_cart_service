@@ -1,26 +1,34 @@
 package com.blubugtech.bakery_cart_service.dto.cartitem;
 
 import com.blubugtech.bakery_cart_service.entity.CartItem;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-@Setter
-@Getter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CartItemResponse {
 
-    // Getters and Setters
     private UUID id;
     private UUID productId;
     private String productSku;
     private String productName;
     private String productCategory;
-    private Integer quantity;
-    private BigDecimal unitPrice;
+    
+    @Builder.Default
+    private Integer quantity = 0;
+    
+    @Builder.Default
+    private BigDecimal unitPrice = BigDecimal.ZERO;
+    
     private BigDecimal totalPrice;
     private BigDecimal originalUnitPrice;
     private String taxClass;
@@ -46,7 +54,4 @@ public class CartItemResponse {
     private String addedFrom;
     private Map<String, Object> metadata;
 
-    // Constructors
-    public CartItemResponse() {}
-
-    }
+}

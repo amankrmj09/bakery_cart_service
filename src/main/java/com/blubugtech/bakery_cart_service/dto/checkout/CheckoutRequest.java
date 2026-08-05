@@ -2,6 +2,7 @@ package com.blubugtech.bakery_cart_service.dto.checkout;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class CheckoutRequest {
 
     // Getters and Setters
@@ -30,6 +32,7 @@ public class CheckoutRequest {
 
     private String deliveryAddress;
 
+    @FutureOrPresent(message = "Delivery date must be today or in the future")
     private LocalDateTime deliveryDate;
 
     private String specialInstructions;
@@ -62,8 +65,5 @@ public class CheckoutRequest {
     private String paymentNotes;
 
     private Map<String, Object> metadata;
-
-    // Constructors
-    public CheckoutRequest() {}
 
 }

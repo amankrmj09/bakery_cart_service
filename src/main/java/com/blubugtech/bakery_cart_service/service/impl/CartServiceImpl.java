@@ -143,7 +143,8 @@ public class CartServiceImpl implements CartService {
             }
             return cartMapper.toDto(cart);
         }
-        CartRequest request = new CartRequest(userId, null);
+        CartRequest request = new CartRequest();
+        request.setUserId(userId);
         return createCart(request);
     }
 
@@ -159,7 +160,8 @@ public class CartServiceImpl implements CartService {
             }
             return cartMapper.toDto(cart);
         }
-        CartRequest request = new CartRequest(sessionId);
+        CartRequest request = new CartRequest();
+        request.setSessionId(sessionId);
         return createCart(request);
     }
 
