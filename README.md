@@ -33,30 +33,69 @@ List the core capabilities and features of this service.
 - Configurable limits for cart items and values.
 
 ## 📁 Folder Structure
-The source code under `src/main/java` is organized as follows:
+The project structure for `bakery_cart_service` is organized as follows:
 ```text
-src/
-└── main/
-    └── java/.../bakery_cart_service/
-        ├── client/     # Feign clients communicating with Order and Product services.
-        ├── config/     # Configurations for Redis caching, Repositories, Security, and Beans.
-        ├── controller/ # REST endpoints for managing shopping carts and items.
-        ├── dto/        # Data Transfer Objects for cart operations.
-        ├── entity/     # Database and Redis entities representing Cart and CartItem sessions.
-        ├── exception/  # Custom exceptions and global error handlers.
-        ├── repository/ # Database access interfaces and Spring Data Redis interfaces.
-        └── service/    # Core business logic including automated Cart Maintenance.
+bakery_cart_service/
+├── .env
+├── .env.example
+├── .gitattributes
+├── .gitignore
+├── Dockerfile
+├── README.md
+├── API_REFERENCE.md
+├── build.gradle.kts
+├── gradle.properties
+├── settings.gradle.kts
+├── gradlew
+├── gradlew.bat
+└── src/
+    ├── main/
+    │   ├── java/com/blubugtech/bakery_cart_service/
+    │   │   ├── BakeryCartServiceApplication.java
+    │   │   ├── client/                  # Feign Clients & Fallbacks (Order, Product)
+    │   │   │   ├── order/               # Order Service Feign Client
+    │   │   │   └── product/             # Product Service Feign Client
+    │   │   ├── config/                  # App configurations (Cache, OpenAPI, Repositories)
+    │   │   ├── constants/               # System & Cart application constants
+    │   │   ├── controller/              # REST Endpoints (Cart, Admin, CartItem, Checkout)
+    │   │   │   ├── CartAdminController.java
+    │   │   │   ├── CartController.java
+    │   │   │   ├── CartItemController.java
+    │   │   │   └── CheckoutController.java
+    │   │   ├── dto/                     # Data Transfer Objects
+    │   │   │   ├── cart/                # Cart DTOs (CartRequest, CartResponse, etc.)
+    │   │   │   ├── cartitem/            # Cart item DTOs (AddItemRequest, etc.)
+    │   │   │   ├── checkout/            # Checkout DTOs (CheckoutRequest, CheckoutResponse)
+    │   │   │   └── order/               # Order bridge DTOs
+    │   │   ├── entity/                  # JPA entities (Cart, CartItem)
+    │   │   ├── enums/                   # Enums (CartStatus, CartType)
+    │   │   ├── exception/               # Custom domain exceptions & GlobalExceptionHandler
+    │   │   ├── gateway/                 # External service gateways (Order, Product)
+    │   │   ├── mapper/                  # MapStruct & JSON mappers
+    │   │   ├── repository/              # Spring Data JPA Repositories
+    │   │   ├── service/                 # Business logic & background maintenance services
+    │   │   └── strategy/                # Strategy pattern implementations (Discount, Shipping, etc.)
+    │   └── resources/
+    │       ├── application.yml          # Core YAML configuration
+    │       ├── application-dev.yml      # Development profile configuration
+    │       ├── application-docker.yml   # Docker deployment profile
+    │       ├── application-prod.yml     # Production profile configuration
+    │       ├── logback-spring.xml       # Spring logging configuration
+    │       └── db/migration/            # Flyway SQL migrations (V1, V2, V3)
+    └── test/
+        ├── java/com/blubugtech/bakery_cart_service/
+        └── resources/
+            └── application-test.yml
 ```
 
 ## 🌐 API Reference
-> [!NOTE]
-> For complete and detailed API definitions, request/response bodies, and schemas, please refer to the OpenAPI Reference available via the API Gateway's Swagger UI.
+For complete endpoint specifications and request/response payload schemas, refer to [`API_REFERENCE.md`](./API_REFERENCE.md).
 
-**Key Endpoints:**
-- `POST /api/carts` - Creates a new shopping cart.
-- `GET /api/carts/{cartId}` - Retrieves the current state of a cart.
-- `POST /api/carts/{cartId}/items` - Adds a new item to the cart.
-- `DELETE /api/carts/{cartId}/items/{itemId}` - Removes a specific item from the cart.
+**Key Controller Groups:**
+- **Cart Management (`/api/carts`)**: Create, retrieve, update, save for later, and merge shopping carts.
+- **Cart Item Management (`/api/cart-items`, `/api/carts/{cartId}/items`)**: Add, update, remove items, move to/from save-for-later.
+- **Checkout (`/api/carts/{cartId}/checkout`, `/api/carts/me/checkout`)**: Validate cart and create orders.
+- **Admin Operations (`/api/carts/status/{status}`, `/api/carts/statistics`)**: Filter carts by status, view paginated carts, and generate analytics reports.
 
 ## ⚙️ Configuration
 List required environment variables and configurations.
@@ -120,3 +159,5 @@ To run the test suite:
 
 ## 🔗 Related Links
 - [Main Platform README](../README.md)
+- [Parent Repository](https://github.com/amankrmj09/Blu_s_Bakery)
+- [API Reference](./API_REFERENCE.md)
