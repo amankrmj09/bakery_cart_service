@@ -447,63 +447,83 @@ public class CartServiceImpl implements CartService {
 
     // Get user carts
     @Transactional(readOnly = true)
-    public List<CartResponse> getUserCarts(UUID userId) {
+    public org.springframework.data.web.PagedModel<CartResponse> getUserCarts(UUID userId, Pageable pageable) {
         log.debug("Fetching carts for user: {}", userId);
 
-        return cartRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(cartMapper::toDto)
-                .collect(Collectors.toList());
+        Page<CartResponse> page = cartRepository.findByUserId(userId, pageable)
+                .map(cartMapper::toDto);
+        return new org.springframework.data.web.PagedModel<>(page);
     }
 
     // Get carts by status
     @Transactional(readOnly = true)
-    public List<CartResponse> getCartsByStatus(Cart.CartStatus status) {
+    public org.springframework.data.web.PagedModel<CartResponse> getCartsByStatus(Cart.CartStatus status, Pageable pageable) {
         log.debug("Fetching carts by status: {}", status);
 
-        return cartRepository.findByStatusOrderByUpdatedAtDesc(status).stream()
-                .map(cartMapper::toDto)
-                .collect(Collectors.toList());
+        Page<CartResponse> page = cartRepository.findByStatus(status, pageable)
+                .map(cartMapper::toDto);
+        return new org.springframework.data.web.PagedModel<>(page);
     }
 
     // Get all carts with pagination
     @Transactional(readOnly = true)
-    public Page<CartResponse> getAllCarts(Pageable pageable) {
+    public org.springframework.data.web.PagedModel<CartResponse> getAllCarts(Pageable pageable) {
         log.debug("Fetching all carts with pagination");
 
-        return cartRepository.findAll(pageable)
+        Page<CartResponse> page = cartRepository.findAll(pageable)
                 .map(cartMapper::toDto);
+        return new org.springframework.data.web.PagedModel<>(page);
     }
 
     // Get cart statistics
     @Cacheable(value = "cart-stats", key = "#startDate + '-' + #endDate")
     @Transactional(readOnly = true)
-    public Map<String, Object> getCartStatistics(LocalDateTime startDate, LocalDateTime endDate) {
+    public com.blubugtech.bakery_cart_service.dto.CartStatisticsResponse getCartStatistics(LocalDateTime startDate, LocalDateTime endDate) {
         log.debug("Fetching cart statistics");
 
         try {
             Object[] stats = cartRepository.getCartStatistics(startDate, endDate);
             Object[] conversionRate = cartRepository.getCartConversionRate(startDate, endDate);
-            List<Object[]> dailyStats = cartRepository.getDailyCartStatistics(startDate, endDate);
-            List<Object[]> sourceStats = cartRepository.getCartStatisticsBySource(startDate, endDate);
+            List<Object[]> dailyStatsObj = cartRepository.getDailyCartStatistics(startDate, endDate);
+            List<Object[]> sourceStatsObj = cartRepository.getCartStatisticsBySource(startDate, endDate);
+            
+            List<com.blubugtech.bakery_cart_service.dto.DailyCartStatResponse> dailyStats = dailyStatsObj.stream().map(obj -> 
+                com.blubugtech.bakery_cart_service.dto.DailyCartStatResponse.builder()
+                    .date(String.valueOf(obj[0]))
+                    .convertedCount(((Number) obj[1]).longValue())
+                    .abandonedCount(((Number) obj[2]).longValue())
+                    .averageValue(obj[3] != null ? ((Number) obj[3]).doubleValue() : 0.0)
+                    .totalValue(obj[4] != null ? ((Number) obj[4]).doubleValue() : 0.0)
+                    .build()
+            ).toList();
 
-            return Map.of(
-                    "totalCarts", stats[0],
-                    "activeCarts", stats[1],
-                    "abandonedCarts", stats[2],
-                    "convertedCarts", stats[3],
-                    "averageCartValue", stats[4],
-                    "averageItemCount", stats[5],
-                    "conversionRate", calculateConversionRate(conversionRate),
-                    "dailyStats", dailyStats,
-                    "sourceStats", sourceStats,
-                    "dateRange", Map.of(
-                            "startDate", startDate.toString(),
-                            "endDate", endDate.toString()
-                    )
-            );
+            List<com.blubugtech.bakery_cart_service.dto.CartSourceStatResponse> sourceStats = sourceStatsObj.stream().map(obj -> 
+                com.blubugtech.bakery_cart_service.dto.CartSourceStatResponse.builder()
+                    .source(String.valueOf(obj[0]))
+                    .cartCount(((Number) obj[1]).longValue())
+                    .averageValue(obj[2] != null ? ((Number) obj[2]).doubleValue() : 0.0)
+                    .convertedCount(((Number) obj[3]).longValue())
+                    .build()
+            ).toList();
+
+            return com.blubugtech.bakery_cart_service.dto.CartStatisticsResponse.builder()
+                    .totalCarts(((Number) stats[0]).longValue())
+                    .activeCarts(((Number) stats[1]).longValue())
+                    .abandonedCarts(((Number) stats[2]).longValue())
+                    .convertedCarts(((Number) stats[3]).longValue())
+                    .averageCartValue((BigDecimal) stats[4])
+                    .averageItemCount(stats[5] != null ? ((Number) stats[5]).doubleValue() : 0.0)
+                    .conversionRate(calculateConversionRate(conversionRate))
+                    .dailyStats(dailyStats)
+                    .sourceStats(sourceStats)
+                    .dateRange(com.blubugtech.bakery_cart_service.dto.DateRangeResponse.builder()
+                            .startDate(startDate.toString())
+                            .endDate(endDate.toString())
+                            .build())
+                    .build();
         } catch (Exception e) {
             log.error("Error fetching cart statistics", e);
-            return Map.of("error", "Statistics temporarily unavailable");
+            throw new RuntimeException("Statistics temporarily unavailable", e);
         }
     }
 

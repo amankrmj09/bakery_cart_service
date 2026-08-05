@@ -203,22 +203,22 @@ public class CartItemServiceImpl implements CartItemService {
     // Get cart items
     @Cacheable(value = "cart-items", key = "#cartId")
     @Transactional(readOnly = true)
-    public List<CartItemResponse> getCartItems(UUID cartId) {
+    public org.springframework.data.web.PagedModel<CartItemResponse> getCartItems(UUID cartId, org.springframework.data.domain.Pageable pageable) {
         log.debug("Fetching items for cart: {}", cartId);
 
-        return cartItemRepository.findActiveItemsByCartId(cartId).stream()
-                .map(cartItemMapper::toDto)
-                .collect(Collectors.toList());
+        org.springframework.data.domain.Page<CartItemResponse> page = cartItemRepository.findActiveItemsByCartId(cartId, pageable)
+                .map(cartItemMapper::toDto);
+        return new org.springframework.data.web.PagedModel<>(page);
     }
 
     // Get saved items
     @Transactional(readOnly = true)
-    public List<CartItemResponse> getSavedItems(UUID cartId) {
+    public org.springframework.data.web.PagedModel<CartItemResponse> getSavedItems(UUID cartId, org.springframework.data.domain.Pageable pageable) {
         log.debug("Fetching saved items for cart: {}", cartId);
 
-        return cartItemRepository.findSavedItemsByCartId(cartId).stream()
-                .map(cartItemMapper::toDto)
-                .collect(Collectors.toList());
+        org.springframework.data.domain.Page<CartItemResponse> page = cartItemRepository.findSavedItemsByCartId(cartId, pageable)
+                .map(cartItemMapper::toDto);
+        return new org.springframework.data.web.PagedModel<>(page);
     }
 
     // Get item by ID

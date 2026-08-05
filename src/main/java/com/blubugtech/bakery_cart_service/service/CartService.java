@@ -25,9 +25,9 @@ public interface CartService {
     CartResponse mergeCarts(MergeCartsRequest request);
     CartResponse saveCartForLater(UUID cartId);
     CheckoutResponse checkoutCart(UUID cartId, CheckoutRequest request);
-    List<CartResponse> getUserCarts(UUID userId);
-    List<CartResponse> getCartsByStatus(Cart.CartStatus status);
-    Page<CartResponse> getAllCarts(Pageable pageable);
-    Map<String, Object> getCartStatistics(LocalDateTime startDate, LocalDateTime endDate);
+    org.springframework.data.web.PagedModel<CartResponse> getUserCarts(UUID userId, Pageable pageable);
+    org.springframework.data.web.PagedModel<CartResponse> getCartsByStatus(Cart.CartStatus status, Pageable pageable);
+    org.springframework.data.web.PagedModel<CartResponse> getAllCarts(Pageable pageable);
+    com.blubugtech.bakery_cart_service.dto.CartStatisticsResponse getCartStatistics(LocalDateTime startDate, LocalDateTime endDate);
     
 }

@@ -209,8 +209,12 @@ public class CartController {
     // Get user's carts
     @GetMapping("/user/{userId}/all")
     @Operation(summary = "Get all carts for a user")
-    public ResponseEntity<List<CartResponse>> getUserCarts(
+    public ResponseEntity<org.springframework.data.web.PagedModel<CartResponse>> getUserCarts(
             @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Id", required = false) UUID requestUserId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -221,9 +225,12 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<CartResponse> carts = cartService.getUserCarts(userId);
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} carts for user", carts.size());
+        org.springframework.data.web.PagedModel<CartResponse> carts = cartService.getUserCarts(userId, pageable);
+
+        log.info("Retrieved {} carts for user", carts.getContent().size());
         return ResponseEntity.ok(carts);
     }
 

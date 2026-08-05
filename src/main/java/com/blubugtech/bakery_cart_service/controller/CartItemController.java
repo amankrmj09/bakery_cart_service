@@ -47,32 +47,46 @@ public class CartItemController {
     // Get items for cart
     @GetMapping("/cart-items/cart/{cartId}")
     @Operation(summary = "Get all items in a cart")
-    public ResponseEntity<List<CartItemResponse>> getCartItems(
+    public ResponseEntity<org.springframework.data.web.PagedModel<CartItemResponse>> getCartItems(
             @PathVariable UUID cartId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         log.info("Get cart items request received for cart: {}", cartId);
 
-        List<CartItemResponse> items = cartItemService.getCartItems(cartId);
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} items for cart", items.size());
+        org.springframework.data.web.PagedModel<CartItemResponse> items = cartItemService.getCartItems(cartId, pageable);
+
+        log.info("Retrieved {} items for cart", items.getContent().size());
         return ResponseEntity.ok(items);
     }
 
     // Get saved items for cart
     @GetMapping("/cart-items/cart/{cartId}/saved")
     @Operation(summary = "Get saved items for a cart")
-    public ResponseEntity<List<CartItemResponse>> getSavedItems(
+    public ResponseEntity<org.springframework.data.web.PagedModel<CartItemResponse>> getSavedItems(
             @PathVariable UUID cartId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         log.info("Get saved items request received for cart: {}", cartId);
 
-        List<CartItemResponse> items = cartItemService.getSavedItems(cartId);
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} saved items for cart", items.size());
+        org.springframework.data.web.PagedModel<CartItemResponse> items = cartItemService.getSavedItems(cartId, pageable);
+
+        log.info("Retrieved {} saved items for cart", items.getContent().size());
         return ResponseEntity.ok(items);
     }
 

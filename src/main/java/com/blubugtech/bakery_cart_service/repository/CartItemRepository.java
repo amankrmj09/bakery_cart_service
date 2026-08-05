@@ -25,9 +25,17 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
     @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND ci.status = 'ACTIVE' ORDER BY ci.addedAt ASC")
     List<CartItem> findActiveItemsByCartId(@Param("cartId") UUID cartId);
 
+    // Find active items by cart ID with pagination
+    @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND ci.status = 'ACTIVE'")
+    Page<CartItem> findActiveItemsByCartId(@Param("cartId") UUID cartId, Pageable pageable);
+
     // Find saved items by cart ID
     @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND ci.status = 'SAVED_FOR_LATER' ORDER BY ci.savedForLaterAt DESC")
     List<CartItem> findSavedItemsByCartId(@Param("cartId") UUID cartId);
+
+    // Find saved items by cart ID with pagination
+    @Query("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId AND ci.status = 'SAVED_FOR_LATER'")
+    Page<CartItem> findSavedItemsByCartId(@Param("cartId") UUID cartId, Pageable pageable);
 
     // Find item by cart and product
     Optional<CartItem> findByCartIdAndProductIdAndStatus(UUID cartId, UUID productId, CartItem.CartItemStatus status);

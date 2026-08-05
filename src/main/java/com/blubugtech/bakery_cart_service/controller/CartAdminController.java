@@ -33,8 +33,12 @@ public class CartAdminController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get carts by status (Admin only)")
-    public ResponseEntity<List<CartResponse>> getCartsByStatus(
+    public ResponseEntity<org.springframework.data.web.PagedModel<CartResponse>> getCartsByStatus(
             @PathVariable Cart.CartStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
         log.info("Get carts by status request received: {}", status);
@@ -43,19 +47,22 @@ public class CartAdminController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<CartResponse> carts = cartService.getCartsByStatus(status);
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        log.info("Retrieved {} carts with status {}", carts.size(), status);
+        org.springframework.data.web.PagedModel<CartResponse> carts = cartService.getCartsByStatus(status, pageable);
+
+        log.info("Retrieved {} carts with status {}", carts.getContent().size(), status);
         return ResponseEntity.ok(carts);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all carts (Admin only)")
-    public ResponseEntity<Page<CartResponse>> getAllCarts(
+    public ResponseEntity<org.springframework.data.web.PagedModel<CartResponse>> getAllCarts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "updatedAt") String sortBy,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDir,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
 
@@ -65,20 +72,19 @@ public class CartAdminController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        Page<CartResponse> carts = cartService.getAllCarts(pageable);
+        org.springframework.data.web.PagedModel<CartResponse> carts = cartService.getAllCarts(pageable);
 
-        log.info("Retrieved {} carts (page {} of {})", carts.getContent().size(),
-                page + 1, carts.getTotalPages());
+        log.info("Retrieved {} carts", carts.getContent().size());
         return ResponseEntity.ok(carts);
     }
 
     @GetMapping("/statistics")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get cart statistics (Admin only)")
-    public ResponseEntity<Map<String, Object>> getCartStatistics(
+    public ResponseEntity<com.blubugtech.bakery_cart_service.dto.CartStatisticsResponse> getCartStatistics(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
@@ -96,7 +102,7 @@ public class CartAdminController {
             endDate = LocalDateTime.now();
         }
 
-        Map<String, Object> statistics = cartService.getCartStatistics(startDate, endDate);
+        com.blubugtech.bakery_cart_service.dto.CartStatisticsResponse statistics = cartService.getCartStatistics(startDate, endDate);
 
         log.info("Cart statistics retrieved");
         return ResponseEntity.ok(statistics);
