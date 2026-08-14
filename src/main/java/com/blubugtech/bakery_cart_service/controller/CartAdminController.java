@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import org.blubakery.common.core.dto.RestPageResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +34,7 @@ public class CartAdminController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get carts by status (Admin only)")
-    public ResponseEntity<org.springframework.data.web.PagedModel<CartResponse>> getCartsByStatus(
+    public ResponseEntity<RestPageResponse<CartResponse>> getCartsByStatus(
             @PathVariable Cart.CartStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -50,7 +51,7 @@ public class CartAdminController {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        org.springframework.data.web.PagedModel<CartResponse> carts = cartService.getCartsByStatus(status, pageable);
+        RestPageResponse<CartResponse> carts = cartService.getCartsByStatus(status, pageable);
 
         log.info("Retrieved {} carts with status {}", carts.getContent().size(), status);
         return ResponseEntity.ok(carts);
@@ -59,7 +60,7 @@ public class CartAdminController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all carts (Admin only)")
-    public ResponseEntity<org.springframework.data.web.PagedModel<CartResponse>> getAllCarts(
+    public ResponseEntity<RestPageResponse<CartResponse>> getAllCarts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -75,7 +76,7 @@ public class CartAdminController {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        org.springframework.data.web.PagedModel<CartResponse> carts = cartService.getAllCarts(pageable);
+        RestPageResponse<CartResponse> carts = cartService.getAllCarts(pageable);
 
         log.info("Retrieved {} carts", carts.getContent().size());
         return ResponseEntity.ok(carts);

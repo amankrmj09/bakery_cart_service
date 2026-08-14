@@ -3,6 +3,7 @@ package com.blubugtech.bakery_cart_service.service.impl;
 import lombok.extern.slf4j.Slf4j;import com.blubugtech.bakery_cart_service.service.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.blubakery.common.core.dto.RestPageResponse;
 import com.blubugtech.bakery_cart_service.gateway.ProductGateway;
 import com.blubugtech.bakery_cart_service.dto.cartitem.AddItemRequest;
 import com.blubugtech.bakery_cart_service.dto.cartitem.CartItemResponse;
@@ -203,22 +204,22 @@ public class CartItemServiceImpl implements CartItemService {
     // Get cart items
     @Cacheable(value = "cart-items", key = "#cartId")
     @Transactional(readOnly = true)
-    public org.springframework.data.web.PagedModel<CartItemResponse> getCartItems(UUID cartId, org.springframework.data.domain.Pageable pageable) {
+    public RestPageResponse<CartItemResponse> getCartItems(UUID cartId, org.springframework.data.domain.Pageable pageable) {
         log.debug("Fetching items for cart: {}", cartId);
 
         org.springframework.data.domain.Page<CartItemResponse> page = cartItemRepository.findActiveItemsByCartId(cartId, pageable)
                 .map(cartItemMapper::toDto);
-        return new org.springframework.data.web.PagedModel<>(page);
+        return new RestPageResponse<>(page.getContent(), page.getPageable(), page.getTotalElements());
     }
 
     // Get saved items
     @Transactional(readOnly = true)
-    public org.springframework.data.web.PagedModel<CartItemResponse> getSavedItems(UUID cartId, org.springframework.data.domain.Pageable pageable) {
+    public RestPageResponse<CartItemResponse> getSavedItems(UUID cartId, org.springframework.data.domain.Pageable pageable) {
         log.debug("Fetching saved items for cart: {}", cartId);
 
         org.springframework.data.domain.Page<CartItemResponse> page = cartItemRepository.findSavedItemsByCartId(cartId, pageable)
                 .map(cartItemMapper::toDto);
-        return new org.springframework.data.web.PagedModel<>(page);
+        return new RestPageResponse<>(page.getContent(), page.getPageable(), page.getTotalElements());
     }
 
     // Get item by ID

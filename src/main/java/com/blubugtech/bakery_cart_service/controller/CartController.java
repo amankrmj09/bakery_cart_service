@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import org.blubakery.common.core.dto.RestPageResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -209,7 +210,7 @@ public class CartController {
     // Get user's carts
     @GetMapping("/user/{userId}/all")
     @Operation(summary = "Get all carts for a user")
-    public ResponseEntity<org.springframework.data.web.PagedModel<CartResponse>> getUserCarts(
+    public ResponseEntity<RestPageResponse<CartResponse>> getUserCarts(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -228,7 +229,7 @@ public class CartController {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        org.springframework.data.web.PagedModel<CartResponse> carts = cartService.getUserCarts(userId, pageable);
+        RestPageResponse<CartResponse> carts = cartService.getUserCarts(userId, pageable);
 
         log.info("Retrieved {} carts for user", carts.getContent().size());
         return ResponseEntity.ok(carts);

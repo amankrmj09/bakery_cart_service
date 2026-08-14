@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import org.blubakery.common.core.dto.RestPageResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +48,7 @@ public class CartItemController {
     // Get items for cart
     @GetMapping("/cart-items/cart/{cartId}")
     @Operation(summary = "Get all items in a cart")
-    public ResponseEntity<org.springframework.data.web.PagedModel<CartItemResponse>> getCartItems(
+    public ResponseEntity<RestPageResponse<CartItemResponse>> getCartItems(
             @PathVariable UUID cartId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -61,7 +62,7 @@ public class CartItemController {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        org.springframework.data.web.PagedModel<CartItemResponse> items = cartItemService.getCartItems(cartId, pageable);
+        RestPageResponse<CartItemResponse> items = cartItemService.getCartItems(cartId, pageable);
 
         log.info("Retrieved {} items for cart", items.getContent().size());
         return ResponseEntity.ok(items);
@@ -70,7 +71,7 @@ public class CartItemController {
     // Get saved items for cart
     @GetMapping("/cart-items/cart/{cartId}/saved")
     @Operation(summary = "Get saved items for a cart")
-    public ResponseEntity<org.springframework.data.web.PagedModel<CartItemResponse>> getSavedItems(
+    public ResponseEntity<RestPageResponse<CartItemResponse>> getSavedItems(
             @PathVariable UUID cartId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -84,7 +85,7 @@ public class CartItemController {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.fromString(sortDir), sortBy);
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
 
-        org.springframework.data.web.PagedModel<CartItemResponse> items = cartItemService.getSavedItems(cartId, pageable);
+        RestPageResponse<CartItemResponse> items = cartItemService.getSavedItems(cartId, pageable);
 
         log.info("Retrieved {} saved items for cart", items.getContent().size());
         return ResponseEntity.ok(items);

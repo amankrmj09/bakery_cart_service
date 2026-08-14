@@ -7,6 +7,7 @@ import com.blubugtech.bakery_cart_service.entity.Cart;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.blubakery.common.core.dto.RestPageResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +26,9 @@ public interface CartService {
     CartResponse mergeCarts(MergeCartsRequest request);
     CartResponse saveCartForLater(UUID cartId);
     CheckoutResponse checkoutCart(UUID cartId, CheckoutRequest request);
-    org.springframework.data.web.PagedModel<CartResponse> getUserCarts(UUID userId, Pageable pageable);
-    org.springframework.data.web.PagedModel<CartResponse> getCartsByStatus(Cart.CartStatus status, Pageable pageable);
-    org.springframework.data.web.PagedModel<CartResponse> getAllCarts(Pageable pageable);
+    RestPageResponse<CartResponse> getUserCarts(UUID userId, Pageable pageable);
+    RestPageResponse<CartResponse> getCartsByStatus(Cart.CartStatus status, Pageable pageable);
+    RestPageResponse<CartResponse> getAllCarts(Pageable pageable);
     com.blubugtech.bakery_cart_service.dto.CartStatisticsResponse getCartStatistics(LocalDateTime startDate, LocalDateTime endDate);
     
 }

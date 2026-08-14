@@ -3,6 +3,7 @@ package com.blubugtech.bakery_cart_service.service.impl;
 import lombok.extern.slf4j.Slf4j;import com.blubugtech.bakery_cart_service.service.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.blubakery.common.core.dto.RestPageResponse;
 import com.blubugtech.bakery_cart_service.gateway.OrderGateway;
 import com.blubugtech.bakery_cart_service.gateway.ProductGateway;
 import com.blubugtech.bakery_cart_service.dto.cart.*;
@@ -449,32 +450,32 @@ public class CartServiceImpl implements CartService {
 
     // Get user carts
     @Transactional(readOnly = true)
-    public org.springframework.data.web.PagedModel<CartResponse> getUserCarts(UUID userId, Pageable pageable) {
+    public RestPageResponse<CartResponse> getUserCarts(UUID userId, Pageable pageable) {
         log.debug("Fetching carts for user: {}", userId);
 
         Page<CartResponse> page = cartRepository.findByUserId(userId, pageable)
                 .map(cartMapper::toDto);
-        return new org.springframework.data.web.PagedModel<>(page);
+        return new RestPageResponse<>(page.getContent(), page.getPageable(), page.getTotalElements());
     }
 
     // Get carts by status
     @Transactional(readOnly = true)
-    public org.springframework.data.web.PagedModel<CartResponse> getCartsByStatus(Cart.CartStatus status, Pageable pageable) {
+    public RestPageResponse<CartResponse> getCartsByStatus(Cart.CartStatus status, Pageable pageable) {
         log.debug("Fetching carts by status: {}", status);
 
         Page<CartResponse> page = cartRepository.findByStatus(status, pageable)
                 .map(cartMapper::toDto);
-        return new org.springframework.data.web.PagedModel<>(page);
+        return new RestPageResponse<>(page.getContent(), page.getPageable(), page.getTotalElements());
     }
 
     // Get all carts with pagination
     @Transactional(readOnly = true)
-    public org.springframework.data.web.PagedModel<CartResponse> getAllCarts(Pageable pageable) {
+    public RestPageResponse<CartResponse> getAllCarts(Pageable pageable) {
         log.debug("Fetching all carts with pagination");
 
         Page<CartResponse> page = cartRepository.findAll(pageable)
                 .map(cartMapper::toDto);
-        return new org.springframework.data.web.PagedModel<>(page);
+        return new RestPageResponse<>(page.getContent(), page.getPageable(), page.getTotalElements());
     }
 
     // Get cart statistics
