@@ -570,9 +570,16 @@ public class CartServiceImpl implements CartService {
 
         try {
             List<ProductValidation> validations = productGateway.validateProducts(productIds);
-            for (int i = 0; i < cart.getActiveItems().size() && i < validations.size(); i++) {
-                CartItem item = cart.getActiveItems().get(i);
-                ProductValidation validation = validations.get(i);
+            
+            Map<UUID, ProductValidation> validationMap = validations.stream()
+                    .collect(Collectors.toMap(ProductValidation::getProductId, v -> v, (v1, v2) -> v1));
+            
+            for (CartItem item : cart.getActiveItems()) {
+                ProductValidation validation = validationMap.get(item.getProductId());
+                
+                if (validation == null) {
+                    throw new CartServiceException("Product validation failed for item: " + item.getProductName());
+                }
                 
                 Boolean isAvailable = validation.getAvailable();
                 Integer stockQuantity = validation.getStockQuantity();
