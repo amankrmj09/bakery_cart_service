@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class ShippingFeeCalculationStrategy {
     public BigDecimal calculateShippingFee(String deliveryType) {
         if ("DELIVERY".equals(deliveryType)) {
-            return new BigDecimal("5.00");
+            return new BigDecimal("50.00");
         }
         return BigDecimal.ZERO;
     }
