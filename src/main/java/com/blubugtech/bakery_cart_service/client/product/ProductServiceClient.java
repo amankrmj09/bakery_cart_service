@@ -34,7 +34,7 @@ public interface ProductServiceClient {
     StockOperationResponsePayload releaseStock(@PathVariable("productId") UUID productId,
                                    @RequestBody StockOperationRequestPayload request);
 
-    @PostMapping("/products/batch/validate")
+    @PostMapping("/products/validate")
     List<ProductValidation> validateProducts(@RequestBody List<UUID> productIds);
 
     @GetMapping("/storefront/validate-coupon")
