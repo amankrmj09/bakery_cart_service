@@ -189,6 +189,14 @@ public class CartServiceImpl implements CartService {
                 }
 
                 cartItemService.updateItemQuantity(existingItem.getId(), newQuantity);
+
+                // Re-fetch the cart after the item quantity update so that the cart entity
+                // in THIS transaction sees the latest CartItem.totalPrice, then recompute
+                // and persist the cart-level totals (subtotal, taxAmount, totalAmount).
+                Cart cartAfterUpdate = cartRepository.findById(cartId)
+                        .orElseThrow(() -> new CartServiceException("Cart not found after item update"));
+                cartAfterUpdate.updateTotals();
+                cartRepository.save(cartAfterUpdate);
             } else {
                 // Add new item
                 cartItemService.addItemToCart(cart, request);
@@ -215,11 +223,19 @@ public class CartServiceImpl implements CartService {
         try {
             cartItemService.updateCartItem(itemId, request);
 
+            // Re-fetch cart so this transaction sees the updated CartItem.totalPrice,
+            // then recompute and persist cart-level totals.
             Cart updatedCart = cartRepository.findById(cartId)
+                    .orElseThrow(() -> new CartServiceException("Cart not found after update"));
+            updatedCart.updateTotals();
+            cartRepository.save(updatedCart);
+
+            // Re-fetch one more time for a clean, consistent response
+            Cart refreshedCart = cartRepository.findById(cartId)
                     .orElseThrow(() -> new CartServiceException("Cart not found after update"));
 
             log.info("Cart item updated successfully: {}", itemId);
-            return cartMapper.toDto(updatedCart);
+            return cartMapper.toDto(refreshedCart);
 
         } catch (Exception e) {
             log.error("Failed to update cart item {}", itemId, e);
